@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQUIPO 2 — Presión Arterial & Sueño</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0d1117;--s1:#161b22;--s2:#1f2733;--s3:#242e3a;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.11);--b3:rgba(255,255,255,.18);
+  --tx:#e6edf3;--muted:#7d8590;--muted2:#adbac7;
+  --red:#ff6b6b;--orange:#ffa94d;--green:#69db7c;--blue:#74c0fc;
+  --purple:#c084fc;--teal:#34d399;--yellow:#fde68a;
+  --r:10px;--r2:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── Sidebar + main layout ── */
+.app{display:flex;flex:1;overflow:hidden;height:100vh;}
+.sidebar{width:260px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+
+/* ── Sidebar header ── */
+.sidebar-head{padding:1.25rem 1rem .75rem;border-bottom:1px solid var(--b1);}
+.brand{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;}
+.brand-pill{background:linear-gradient(135deg,#ff6b6b,#c084fc);color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.08em;padding:.2rem .5rem;border-radius:4px;}
+.brand h1{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--tx);}
+.brand h1 span{color:var(--red);}
+.search-box{position:relative;}
+.search-box input{width:100%;background:var(--s2);border:1px solid var(--b2);color:var(--tx);border-radius:var(--r);padding:.45rem .7rem .45rem 2rem;font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;transition:border-color .2s;}
+.search-box input:focus{border-color:var(--blue);}
+.search-box input::placeholder{color:var(--muted);}
+.search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;}
+
+/* ── Patient list ── */
+.sidebar-section-label{font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.75rem 1rem .4rem;}
+.patient-list{flex:1;overflow-y:auto;padding:0 .5rem .5rem;}
+.patient-list::-webkit-scrollbar{width:4px;}
+.patient-list::-webkit-scrollbar-track{background:transparent;}
+.patient-list::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
+.patient-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border-radius:var(--r);cursor:pointer;transition:background .15s;margin-bottom:2px;position:relative;}
+.patient-item:hover{background:var(--s2);}
+.patient-item.active{background:var(--s3);border:1px solid var(--b2);}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;flex-shrink:0;}
+.patient-info{flex:1;min-width:0;}
+.patient-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.patient-meta{font-size:.7rem;color:var(--muted);}
+.pa-badge{font-size:.6rem;font-weight:600;padding:.1rem .35rem;border-radius:3px;margin-left:auto;flex-shrink:0;}
+.badge-ok{background:rgba(105,219,124,.15);color:#4ade80;border:1px solid rgba(105,219,124,.25);}
+.badge-warn{background:rgba(255,169,77,.15);color:#fb923c;border:1px solid rgba(255,169,77,.25);}
+.badge-danger{background:rgba(255,107,107,.15);color:#f87171;border:1px solid rgba(255,107,107,.25);}
+.badge-gray{background:var(--b1);color:var(--muted);border:1px solid var(--b2);}
+
+.btn-add-patient{display:flex;align-items:center;gap:.5rem;width:100%;padding:.55rem .8rem;background:transparent;border:1px dashed var(--b2);border-radius:var(--r);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;margin:.5rem 0;}
+.btn-add-patient:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── Top bar ── */
+.topbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:.85rem 1.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.topbar-left h2{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400;}
+.topbar-left p{font-size:.75rem;color:var(--muted);margin-top:.1rem;}
+.topbar-right{display:flex;align-items:center;gap:.75rem;}
+.clock{font-size:.78rem;color:var(--muted);text-align:right;line-height:1.5;}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:glow 2s ease-in-out infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 4px var(--green)}50%{box-shadow:0 0 12px var(--green)}}
+
+/* ── Content area ── */
+.content{padding:1.5rem 1.75rem;flex:1;}
+
+/* ── Empty state ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;text-align:center;}
+.empty-state .icon{font-size:3rem;opacity:.4;}
+.empty-state h3{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--muted2);}
+.empty-state p{font-size:.85rem;color:var(--muted);max-width:300px;line-height:1.6;}
+
+/* ── Sub-tabs ── */
+.sub-tabs{display:flex;gap:.35rem;background:var(--s1);border-radius:var(--r);padding:.3rem;border:1px solid var(--b1);margin-bottom:1.5rem;width:fit-content;}
+.sub-tab{padding:.4rem .9rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;}
+.sub-tab.active{background:var(--s3);color:var(--tx);}
+.sub-tab:hover:not(.active){color:var(--tx);}
+
+/* ── Cards ── */
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.85rem;margin-bottom:1.25rem;}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.1rem 1.2rem;transition:border-color .2s;}
+.card:hover{border-color:var(--b2);}
+.card-label{font-size:.67rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+.card-val{font-size:2rem;font-weight:300;font-family:'DM Serif Display',serif;line-height:1;}
+.card-unit{font-size:.78rem;color:var(--muted);margin-top:.2rem;}
+.card-sub{font-size:.72rem;color:var(--muted);margin-top:.45rem;}
+.status-pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.67rem;font-weight:600;padding:.2rem .55rem;border-radius:20px;margin-top:.45rem;}
+
+/* ── Two col ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}.app{flex-direction:column;height:auto;}.sidebar{width:100%;height:auto;max-height:280px;}}
+
+/* ── Chart card ── */
+.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
+.chart-card h3{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+.chart-wrap{position:relative;height:200px;}
+
+/* ── Alert ── */
+.alert{border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.85rem;display:flex;gap:.65rem;font-size:.82rem;line-height:1.5;}
+.alert-danger{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:#fca5a5;}
+.alert-warn{background:rgba(255,169,77,.08);border:1px solid rgba(255,169,77,.2);color:#fdba74;}
+.alert-info{background:rgba(116,192,252,.08);border:1px solid rgba(116,192,252,.2);color:#93c5fd;}
+.alert-ok{background:rgba(105,219,124,.08);border:1px solid rgba(105,219,124,.2);color:#86efac;}
+
+/* ── Form ── */
+.form-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
+.form-card h3{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.85rem 1.2rem;}
+.fg{display:flex;flex-direction:column;gap:.35rem;}
+.fg label{font-size:.72rem;font-weight:500;color:var(--muted);}
+.fg input,.fg select,.fg textarea{background:var(--bg);border:1px solid var(--b2);color:var(--tx);border-radius:var(--r);padding:.5rem .7rem;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);}
+.fg select option{background:var(--s2);}
+.range-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;}
+.range-row label{font-size:.75rem;color:var(--muted);width:120px;flex-shrink:0;}
+.range-row input[type=range]{flex:1;}
+.range-val{font-size:.82rem;font-weight:500;min-width:28px;text-align:right;}
+.btn-primary{background:linear-gradient(135deg,#ff6b6b,#c084fc);border:none;color:#fff;border-radius:var(--r);padding:.6rem 1.3rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:opacity .2s,transform .1s;margin-top:.35rem;}
+.btn-primary:hover{opacity:.88;}
+.btn-primary:active{transform:scale(.98);}
+.btn-sec{background:var(--s2);border:1px solid var(--b2);color:var(--tx);border-radius:var(--r);padding:.55rem 1rem;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:background .2s;margin-top:.35rem;}
+.btn-sec:hover{background:var(--s3);}
+.btn-danger-sm{background:transparent;border:1px solid rgba(255,107,107,.3);color:#f87171;border-radius:var(--r);padding:.35rem .7rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;}
+.btn-danger-sm:hover{background:rgba(255,107,107,.1);}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{font-size:.65rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--b1);}
+td{padding:.6rem .75rem;border-bottom:1px solid var(--b1);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.015);}
+
+/* ── Modal overlay ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);padding:2rem;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal h2{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:1.25rem;}
+.modal-footer{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.25rem;}
+
+/* ── Stats overview ── */
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.5rem;}
+.ov-card{background:var(--s2);border-radius:var(--r);padding:.85rem 1rem;text-align:center;}
+.ov-num{font-size:1.7rem;font-weight:300;font-family:'DM Serif Display',serif;line-height:1;}
+.ov-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:.25rem;}
+
+/* ── Profile header ── */
+.profile-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:.85rem 1.2rem;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);}
+.profile-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;flex-shrink:0;}
+.profile-info h2{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400;}
+.profile-info p{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
+.profile-actions{margin-left:auto;display:flex;gap:.5rem;}
+
+/* ── General tab empty message ── */
+.no-data{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;}
+
+/* ── Scrollbar main ── */
+.main::-webkit-scrollbar{width:5px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <div class="brand">
+      <span class="brand-pill">EQUIPO 2</span>
+      <h1>PA <span>&</span> Sueño</h1>
+    </div>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar paciente..." oninput="filterPatients(this.value)">
+    </div>
+  </div>
+
+  <div class="sidebar-section-label">Pacientes (<span id="count-label">0</span>)</div>
+  <div class="patient-list" id="patient-list"></div>
+
+  <div style="padding:.5rem .75rem .75rem">
+    <button class="btn-add-patient" onclick="openAddModal()">＋ Agregar paciente</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Top bar (overview mode) -->
+  <div class="topbar" id="topbar-overview">
+    <div class="topbar-left">
+      <h2>Panel general</h2>
+      <p>Monitoreo de presión arterial y sueño — todos los pacientes</p>
+    </div>
+    <div class="topbar-right">
+      <div class="clock" id="clock"></div>
+      <div class="dot-live"></div>
+    </div>
+  </div>
+
+  <!-- Top bar (patient mode) -->
+  <div class="topbar" id="topbar-patient" style="display:none">
+    <div class="topbar-left">
+      <h2 id="topbar-name">—</h2>
+      <p id="topbar-meta">—</p>
+    </div>
+    <div class="topbar-right">
+      <div class="clock" id="clock2"></div>
+      <div class="dot-live"></div>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════
+     MODAL — AGREGAR PACIENTE
+══════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-add" style="display:none" onclick="closeModalIfBg(event,'modal-add')">
+  <div class="modal">
+    <h2>Nuevo paciente</h2>
+    <div class="form-grid">
+      <div class="fg"><label>Nombre completo *</label><input id="np-nombre" type="text" placeholder="Ana García López"></div>
+      <div class="fg"><label>Edad</label><input id="np-edad" type="number" min="1" max="120" placeholder="45"></div>
+      <div class="fg"><label>Sexo</label><select id="np-sexo"><option value="F">Femenino</option><option value="M">Masculino</option><option value="O">Otro</option></select></div>
+      <div class="fg"><label>ID / Expediente</label><input id="np-id" type="text" placeholder="EXP-001"></div>
+      <div class="fg" style="grid-column:span 2"><label>Diagnósticos relevantes</label><input id="np-dx" type="text" placeholder="Hipertensión, Diabetes tipo 2..."></div>
+      <div class="fg"><label>Medicación actual</label><input id="np-med" type="text" placeholder="Losartán 50mg..."></div>
+      <div class="fg"><label>Teléfono/contacto</label><input id="np-tel" type="text" placeholder="+52 998 000 0000"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-add')">Cancelar</button>
+      <button class="btn-primary" onclick="addPatient()">Guardar paciente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL — REGISTRAR PA
+══════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-pa" style="display:none" onclick="closeModalIfBg(event,'modal-pa')">
+  <div class="modal">
+    <h2>Nueva medición de presión arterial</h2>
+    <div class="form-grid">
+      <div class="fg"><label>Sistólica (mmHg) *</label><input id="pa-sis" type="number" min="70" max="250" placeholder="120"></div>
+      <div class="fg"><label>Diastólica (mmHg) *</label><input id="pa-dia" type="number" min="40" max="150" placeholder="80"></div>
+      <div class="fg"><label>Pulso (lpm)</label><input id="pa-pulso" type="number" min="30" max="220" placeholder="72"></div>
+      <div class="fg"><label>Brazo</label><select id="pa-brazo"><option value="izquierdo">Izquierdo</option><option value="derecho">Derecho</option></select></div>
+      <div class="fg"><label>Posición</label><select id="pa-pos"><option value="sentado">Sentado</option><option value="acostado">Acostado</option><option value="de pie">De pie</option></select></div>
+      <div class="fg"><label>Contexto</label><select id="pa-ctx"><option value="reposo">Reposo</option><option value="post-ejercicio">Post ejercicio</option><option value="post-comida">Post comida</option><option value="estrés">Estrés</option><option value="medicación">Con medicación</option></select></div>
+      <div class="fg"><label>Fecha</label><input id="pa-fecha" type="date"></div>
+      <div class="fg"><label>Hora</label><input id="pa-hora" type="time"></div>
+      <div class="fg" style="grid-column:span 2"><label>Notas</label><input id="pa-notas" type="text" placeholder="Observaciones adicionales..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-pa')">Cancelar</button>
+      <button class="btn-primary" onclick="savePA()">Guardar medición</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL — REGISTRAR SUEÑO
+══════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-sueno" style="display:none" onclick="closeModalIfBg(event,'modal-sueno')">
+  <div class="modal">
+    <h2>Nuevo registro de sueño</h2>
+    <div class="form-grid">
+      <div class="fg"><label>Fecha (noche)</label><input id="su-fecha" type="date"></div>
+      <div class="fg"><label>Hora de acostarse</label><input id="su-dormir" type="time" value="22:30"></div>
+      <div class="fg"><label>Hora de despertar</label><input id="su-despertar" type="time" value="06:30"></div>
+      <div class="fg"><label>Calidad percibida</label>
+        <select id="su-cal">
+          <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+          <option value="4">⭐⭐⭐⭐ Bueno</option>
+          <option value="3" selected>⭐⭐⭐ Regular</option>
+          <option value="2">⭐⭐ Malo</option>
+          <option value="1">⭐ Muy malo</option>
+        </select>
+      </div>
+      <div class="fg"><label>Interrupciones</label><input id="su-int" type="number" min="0" max="20" placeholder="0"></div>
+    </div>
+    <div style="margin-top:1rem">
+      <p style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;">Factores</p>
+      <div class="range-row"><label>Estrés del día</label><input type="range" id="su-estres" min="1" max="10" value="5" oninput="rv('su-estres','rv-estres')"><span class="range-val" id="rv-estres">5</span></div>
+      <div class="range-row"><label>Actividad física</label><input type="range" id="su-act" min="1" max="10" value="4" oninput="rv('su-act','rv-act')"><span class="range-val" id="rv-act">4</span></div>
+      <div class="range-row"><label>Cafeína (tazas)</label><input type="range" id="su-caf" min="0" max="10" value="2" oninput="rv('su-caf','rv-caf')"><span class="range-val" id="rv-caf">2</span></div>
+      <div class="range-row"><label>Alcohol (copas)</label><input type="range" id="su-alc" min="0" max="10" value="0" oninput="rv('su-alc','rv-alc')"><span class="range-val" id="rv-alc">0</span></div>
+    </div>
+    <div class="fg" style="margin-top:.5rem"><label>Notas</label><input id="su-notas" type="text" placeholder="Pesadillas, ronquidos, temperatura..."></div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('modal-sueno')">Cancelar</button>
+      <button class="btn-primary" onclick="saveSueno()">Guardar sueño</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  DATA STORE (localStorage para persistencia)
+// ════════════════════════════════════════════════════════
+const STORE_KEY = 'eq2_data_v2';
+
+function loadData(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {patients:[],nextId:1}; }
+  catch{ return {patients:[],nextId:1}; }
+}
+function saveData(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(db));
+}
+
+let db = loadData();
+
+// Seed demo si está vacío
+if(db.patients.length === 0){
+  const seedPats = [
+    {id:1,nombre:'Ana García López',edad:52,sexo:'F',exp:'EXP-001',dx:'Hipertensión esencial',med:'Losartán 50mg',tel:'998-100-0001',color:'#c084fc'},
+    {id:2,nombre:'Roberto Mendez',edad:67,sexo:'M',exp:'EXP-002',dx:'Hipertensión grado 2, DM2',med:'Amlodipino 5mg, Metformina',tel:'998-100-0002',color:'#74c0fc'},
+    {id:3,nombre:'María Torres',edad:38,sexo:'F',exp:'EXP-003',dx:'Sin diagnóstico previo',med:'Ninguna',tel:'998-100-0003',color:'#34d399'},
+    {id:4,nombre:'Carlos Ruiz Díaz',edad:45,sexo:'M',exp:'EXP-004',dx:'Estrés laboral crónico',med:'Ninguna',tel:'998-100-0004',color:'#ffa94d'},
+  ];
+  const daysAgo = (n)=>{
+    const d = new Date(); d.setDate(d.getDate()-n);
+    return d.toISOString().slice(0,10);
+  };
+  seedPats.forEach(p=>{
+    p.pa=[];p.sueno=[];
+    const baseSis=[p.id===2?148:p.id===1?135:p.id===4?128:115];
+    for(let i=6;i>=0;i--){
+      const s = baseSis[0]+Math.round((Math.random()-.3)*12);
+      const d = Math.round(s*.62+Math.random()*8);
+      p.pa.push({fecha:daysAgo(i),hora:'07:'+String(10+Math.floor(Math.random()*40)).padStart(2,'0'),
+        sis:s,dia:d,pulso:65+Math.round(Math.random()*20),
+        contexto:'reposo',brazo:'izquierdo',notas:''});
+      const dormin = 22+Math.round(Math.random()*2);
+      const dormH  = `${dormin%24}:${Math.random()>.5?'30':'00'}`;
+      const wakeH  = `0${5+Math.round(Math.random()*2)}:${Math.random()>.5?'30':'00'}`;
+      p.sueno.push({fecha:daysAgo(i),dormir:dormH,despertar:wakeH,
+        cal:String(2+Math.round(Math.random()*3)),
+        estres:2+Math.round(Math.random()*7),act:2+Math.round(Math.random()*7),
+        caf:Math.round(Math.random()*4),alc:0,int:Math.round(Math.random()*3),notas:''});
+    }
+  });
+  db = {patients:seedPats, nextId:5};
+  saveData();
+}
+
+// ════════════════════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════════════════════
+let activePatientId = null;
+let activeSubTab = 'perfil';
+let chartInstances = {};
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function calcH(dormir,despertar){
+  const [dh,dm]=dormir.split(':').map(Number);
+  const [wh,wm]=despertar.split(':').map(Number);
+  let m=(wh*60+wm)-(dh*60+dm);
+  if(m<0)m+=1440;
+  return Math.round(m/6)/10;
+}
+function clsPA(s,d){
+  if(s>180||d>120)return{label:'Crisis',cls:'badge-danger',emoji:'🚨'};
+  if(s>=140||d>=90) return{label:'HTA G2',cls:'badge-danger',emoji:'🚨'};
+  if(s>=130||d>=80) return{label:'HTA G1',cls:'badge-warn',emoji:'⚠'};
+  if(s>=120)         return{label:'Elevada',cls:'badge-warn',emoji:'⚠'};
+  return{label:'Normal',cls:'badge-ok',emoji:'✓'};
+}
+function clsH(h){
+  if(h>=7)return{label:'Óptimo',cls:'badge-ok'};
+  if(h>=6)return{label:'Insuf.',cls:'badge-warn'};
+  return{label:'Defic.',cls:'badge-danger'};
+}
+function initials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function today(){return new Date().toISOString().slice(0,10);}
+function nowTime(){return new Date().toTimeString().slice(0,5);}
+function stars(n){return '⭐'.repeat(+n);}
+function destroyCharts(){Object.values(chartInstances).forEach(c=>{try{c.destroy()}catch{}});chartInstances={};}
+function rv(id,vid){document.getElementById(vid).textContent=document.getElementById(id).value;}
+
+// ════════════════════════════════════════════════════════
+//  CLOCK
+// ════════════════════════════════════════════════════════
+function tick(){
+  const n=new Date();
+  const s=n.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'})+'\n'+n.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  ['clock','clock2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=s.replace('\n','<br>');});
+}
+tick();setInterval(tick,1000);
+
+// ════════════════════════════════════════════════════════
+//  SIDEBAR
+// ════════════════════════════════════════════════════════
+function filterPatients(q){renderSidebar(q);}
+
+function renderSidebar(q=''){
+  const list=document.getElementById('patient-list');
+  const search=q.toLowerCase();
+  const filtered=db.patients.filter(p=>p.nombre.toLowerCase().includes(search)||p.exp.toLowerCase().includes(search));
+  document.getElementById('count-label').textContent=db.patients.length;
+
+  if(filtered.length===0){
+    list.innerHTML=`<div class="no-data">Sin resultados</div>`;
+    return;
+  }
+
+  list.innerHTML=filtered.map(p=>{
+    const lastPA=p.pa.at(-1);
+    const badgeHTML=lastPA
+      ? `<span class="pa-badge ${clsPA(lastPA.sis,lastPA.dia).cls}">${lastPA.sis}/${lastPA.dia}</span>`
+      : `<span class="pa-badge badge-gray">—</span>`;
+    const isActive=p.id===activePatientId;
+    return `<div class="patient-item${isActive?' active':''}" onclick="selectPatient(${p.id})">
+      <div class="avatar" style="background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
+      <div class="patient-info">
+        <div class="patient-name">${p.nombre}</div>
+        <div class="patient-meta">${p.edad} años · ${p.exp}</div>
+      </div>
+      ${badgeHTML}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  OVERVIEW (sin paciente seleccionado)
+// ════════════════════════════════════════════════════════
+function renderOverview(){
+  document.getElementById('topbar-overview').style.display='flex';
+  document.getElementById('topbar-patient').style.display='none';
+  destroyCharts();
+
+  const total=db.patients.length;
+  const conPA=db.patients.filter(p=>p.pa.length>0);
+  const conSueno=db.patients.filter(p=>p.sueno.length>0);
+  const enAlerta=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=130||l.dia>=80);});
+  const enCrisis=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=140||l.dia>=90);});
+
+  let alertsHtml='';
+  if(enCrisis.length>0){
+    alertsHtml+=`<div class="alert alert-danger">🚨 <div><strong>${enCrisis.length} paciente(s) con hipertensión grado 2 o superior:</strong> ${enCrisis.map(p=>p.nombre).join(', ')}. Se recomienda atención prioritaria.</div></div>`;
+  }
+  if(enAlerta.length > enCrisis.length){
+    const mod=enAlerta.filter(p=>!enCrisis.includes(p));
+    if(mod.length>0)alertsHtml+=`<div class="alert alert-warn">⚠️ <div><strong>${mod.length} paciente(s) con presión elevada:</strong> ${mod.map(p=>p.nombre).join(', ')}.</div></div>`;
+  }
+
+  // Tabla resumen
+  const rows=db.patients.map(p=>{
+    const lPA=p.pa.at(-1);
+    const lS=p.sueno.at(-1);
+    const h=lS?calcH(lS.dormir,lS.despertar):null;
+    const c=lPA?clsPA(lPA.sis,lPA.dia):{label:'—',cls:'badge-gray',emoji:''};
+    const cs=h?clsH(h):{label:'—',cls:'badge-gray'};
+    return `<tr style="cursor:pointer" onclick="selectPatient(${p.id})">
+      <td><div style="display:flex;align-items:center;gap:.6rem">
+        <div class="avatar" style="width:28px;height:28px;font-size:.65rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
+        <div><div style="font-weight:500;font-size:.82rem">${p.nombre}</div><div style="font-size:.7rem;color:var(--muted)">${p.exp}</div></div>
+      </div></td>
+      <td>${p.edad} · ${p.sexo}</td>
+      <td>${lPA?`<strong>${lPA.sis}/${lPA.dia}</strong>`:'—'}</td>
+      <td>${lPA?lPA.pulso:'—'}</td>
+      <td>${lPA?`<span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span>`:'<span class="status-pill badge-gray">Sin datos</span>'}</td>
+      <td>${h?`${h}h`:'—'}</td>
+      <td>${lS?stars(lS.cal):'—'}</td>
+      <td>${h?`<span class="status-pill ${cs.cls}">${cs.label}</span>`:'<span class="status-pill badge-gray">Sin datos</span>'}</td>
+      <td><span style="font-size:.72rem;color:var(--muted)">${lPA?lPA.fecha:'—'}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('main-content').innerHTML=`
+    ${alertsHtml}
+    <div class="overview-grid">
+      <div class="ov-card"><div class="ov-num">${total}</div><div class="ov-lbl">Pacientes</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--green)">${conPA.length}</div><div class="ov-lbl">Con medición PA</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--purple)">${conSueno.length}</div><div class="ov-lbl">Con registro sueño</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--red)">${enCrisis.length}</div><div class="ov-lbl">En alerta crítica</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--orange)">${enAlerta.length-enCrisis.length}</div><div class="ov-lbl">Presión elevada</div></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Todos los pacientes — resumen</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Paciente</th><th>Edad/Sexo</th><th>PA (mmHg)</th><th>Pulso</th><th>Estado PA</th><th>Sueño</th><th>Calidad</th><th>Estado sueño</th><th>Última medición</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="9" class="no-data">Agrega pacientes para comenzar</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <h3>Distribución PA sistólica</h3>
+        <div class="chart-wrap"><canvas id="ov-chart-pa"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Sueño promedio por paciente</h3>
+        <div class="chart-wrap"><canvas id="ov-chart-sueno"></canvas></div>
+      </div>
+    </div>
+  `;
+
+  // Charts overview
+  const names=db.patients.map(p=>p.nombre.split(' ')[0]);
+  const sisCurrent=db.patients.map(p=>p.pa.at(-1)?.sis||0);
+  const colorsPA=sisCurrent.map(s=>s>=140?'#ff6b6b':s>=130?'#ffa94d':s>=120?'#fde68a':'#69db7c');
+  const avgSueno=db.patients.map(p=>{
+    if(!p.sueno.length)return 0;
+    return Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
+  });
+  const colorsSueno=avgSueno.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b');
+
+  setTimeout(()=>{
+    const ctx1=document.getElementById('ov-chart-pa')?.getContext('2d');
+    if(ctx1) chartInstances['ov-pa']=new Chart(ctx1,{type:'bar',data:{labels:names,datasets:[{data:sisCurrent,backgroundColor:colorsPA,borderRadius:6,borderSkipped:false}]},options:barOpts('mmHg')});
+    const ctx2=document.getElementById('ov-chart-sueno')?.getContext('2d');
+    if(ctx2) chartInstances['ov-su']=new Chart(ctx2,{type:'bar',data:{labels:names,datasets:[{data:avgSueno,backgroundColor:colorsSueno,borderRadius:6,borderSkipped:false}]},options:barOpts('horas')});
+  },50);
+}
+
+function barOpts(unit){
+  return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`${i.raw} ${unit}`}}},scales:{x:{ticks:{color:'#7d8590',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7d8590',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}};
+}
+
+// ════════════════════════════════════════════════════════
+//  SELECCIONAR PACIENTE
+// ════════════════════════════════════════════════════════
+function selectPatient(id){
+  activePatientId=id;
+  activeSubTab='perfil';
+  renderSidebar(document.getElementById('search-input').value);
+  renderPatient();
+}
+
+function getPatient(){return db.patients.find(p=>p.id===activePatientId);}
+
+function renderPatient(){
+  const p=getPatient();
+  if(!p)return;
+  document.getElementById('topbar-overview').style.display='none';
+  document.getElementById('topbar-patient').style.display='flex';
+  document.getElementById('topbar-name').textContent=p.nombre;
+  document.getElementById('topbar-meta').textContent=`${p.edad} años · ${p.exp} · ${p.dx||'Sin diagnóstico'}`;
+  destroyCharts();
+
+  const lastPA=p.pa.at(-1);
+  const lastS=p.sueno.at(-1);
+  const c=lastPA?clsPA(lastPA.sis,lastPA.dia):{label:'Sin datos',cls:'badge-gray',emoji:''};
+  const h=lastS?calcH(lastS.dormir,lastS.despertar):null;
+  const cs=h?clsH(h):{label:'Sin datos',cls:'badge-gray'};
+
+  // Alertas del paciente
+  let alerts='';
+  if(lastPA&&(lastPA.sis>=140||lastPA.dia>=90))
+    alerts+=`<div class="alert alert-danger">🚨 Última PA: <strong>${lastPA.sis}/${lastPA.dia} mmHg</strong> — Hipertensión. Evalúa urgentemente.</div>`;
+  else if(lastPA&&(lastPA.sis>=130||lastPA.dia>=80))
+    alerts+=`<div class="alert alert-warn">⚠️ Presión ligeramente elevada (${lastPA.sis}/${lastPA.dia} mmHg). Monitoreo frecuente.</div>`;
+  if(h&&h<6)
+    alerts+=`<div class="alert alert-warn">🌙 Sueño insuficiente anoche: <strong>${h}h</strong>. El sueño corto puede elevar la PA.</div>`;
+
+  const subTabContent={
+    perfil:`
+      ${alerts}
+      <div class="cards-row">
+        <div class="card"><div class="card-label">Sistólica</div><div class="card-val" style="color:var(--red)">${lastPA?lastPA.sis:'—'}</div><div class="card-unit">mmHg</div><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></div>
+        <div class="card"><div class="card-label">Diastólica</div><div class="card-val" style="color:var(--orange)">${lastPA?lastPA.dia:'—'}</div><div class="card-unit">mmHg</div></div>
+        <div class="card"><div class="card-label">Pulso</div><div class="card-val" style="color:var(--blue)">${lastPA?lastPA.pulso:'—'}</div><div class="card-unit">lpm</div></div>
+        <div class="card"><div class="card-label">Sueño anoche</div><div class="card-val" style="color:var(--purple)">${h||'—'}</div><div class="card-unit">${h?'horas':''}</div><span class="status-pill ${cs.cls}">${cs.label}</span></div>
+        <div class="card"><div class="card-label">Registros PA</div><div class="card-val" style="color:var(--teal)">${p.pa.length}</div></div>
+        <div class="card"><div class="card-label">Registros sueño</div><div class="card-val" style="color:var(--yellow)">${p.sueno.length}</div></div>
+      </div>
+      <div class="two-col">
+        <div class="chart-card"><h3>Presión arterial — últimos registros</h3><div class="chart-wrap"><canvas id="ch-pa"></canvas></div></div>
+        <div class="chart-card"><h3>Sueño — últimos registros</h3><div class="chart-wrap"><canvas id="ch-su"></canvas></div></div>
+      </div>
+      <div class="form-card">
+        <h3>Datos del paciente</h3>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre</label><input type="text" value="${p.nombre}" onchange="updateField(${p.id},'nombre',this.value)"></div>
+          <div class="fg"><label>Edad</label><input type="number" value="${p.edad}" onchange="updateField(${p.id},'edad',+this.value)"></div>
+          <div class="fg"><label>Sexo</label><select onchange="updateField(${p.id},'sexo',this.value)"><option${p.sexo==='F'?' selected':''}>F</option><option${p.sexo==='M'?' selected':''}>M</option><option${p.sexo==='O'?' selected':''}>O</option></select></div>
+          <div class="fg"><label>Expediente</label><input type="text" value="${p.exp}" onchange="updateField(${p.id},'exp',this.value)"></div>
+          <div class="fg" style="grid-column:span 2"><label>Diagnósticos</label><input type="text" value="${p.dx||''}" onchange="updateField(${p.id},'dx',this.value)"></div>
+          <div class="fg" style="grid-column:span 2"><label>Medicación</label><input type="text" value="${p.med||''}" onchange="updateField(${p.id},'med',this.value)"></div>
+          <div class="fg"><label>Teléfono</label><input type="text" value="${p.tel||''}" onchange="updateField(${p.id},'tel',this.value)"></div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+          <button class="btn-primary" onclick="openModalPA()">➕ Registrar PA</button>
+          <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#c084fc)" onclick="openModalSueno()">🌙 Registrar sueño</button>
+          <button class="btn-sec" onclick="exportCSV(${p.id})">⬇ Exportar CSV</button>
+          <button class="btn-danger-sm" onclick="deletePatient(${p.id})">🗑 Eliminar paciente</button>
+        </div>
+      </div>
+    `,
+    pa: renderTabPA(p),
+    sueno: renderTabSueno(p),
+    correlacion: renderTabCorr(p),
+  };
+
+  document.getElementById('main-content').innerHTML=`
+    <div class="profile-header">
+      <div class="profile-avatar" style="background:${p.color}22;color:${p.color};font-size:1.1rem">${initials(p.nombre)}</div>
+      <div class="profile-info">
+        <h2>${p.nombre}</h2>
+        <p>${p.edad} años · ${p.sexo} · ${p.exp}${p.dx?` · ${p.dx}`:''}</p>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-primary" onclick="openModalPA()">➕ PA</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#c084fc);margin-left:.25rem" onclick="openModalSueno()">🌙 Sueño</button>
+      </div>
+    </div>
+    <div class="sub-tabs">
+      <button class="sub-tab ${activeSubTab==='perfil'?'active':''}" onclick="switchSubTab('perfil')">Resumen</button>
+      <button class="sub-tab ${activeSubTab==='pa'?'active':''}" onclick="switchSubTab('pa')">Presión arterial</button>
+      <button class="sub-tab ${activeSubTab==='sueno'?'active':''}" onclick="switchSubTab('sueno')">Sueño</button>
+      <button class="sub-tab ${activeSubTab==='correlacion'?'active':''}" onclick="switchSubTab('correlacion')">Correlación</button>
+    </div>
+    <div id="subtab-content">${subTabContent[activeSubTab]||''}</div>
+  `;
+
+  setTimeout(()=>drawPatientCharts(p),60);
+}
+
+function switchSubTab(t){
+  activeSubTab=t;
+  renderPatient();
+}
+
+// ════════════════════════════════════════════════════════
+//  SUB-TABS CONTENT
+// ════════════════════════════════════════════════════════
+function renderTabPA(p){
+  if(!p.pa.length)return`<div class="no-data">Este paciente aún no tiene mediciones de presión arterial.<br><button class="btn-primary" style="margin-top:.75rem" onclick="openModalPA()">➕ Agregar primera medición</button></div>`;
+  const rows=[...p.pa].reverse().map(r=>{
+    const c=clsPA(r.sis,r.dia);
+    return`<tr><td>${r.fecha} ${r.hora}</td><td><strong>${r.sis}</strong></td><td><strong>${r.dia}</strong></td><td>${r.pulso}</td><td>${r.contexto}</td><td>${r.brazo}</td><td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;
+  }).join('');
+  const avg=Math.round(p.pa.reduce((a,r)=>a+r.sis,0)/p.pa.length);
+  const max=Math.max(...p.pa.map(r=>r.sis));
+  const min=Math.min(...p.pa.map(r=>r.sis));
+  return`
+    <div class="cards-row">
+      <div class="card"><div class="card-label">Promedio sistólica</div><div class="card-val" style="color:var(--red)">${avg}</div><div class="card-unit">mmHg</div></div>
+      <div class="card"><div class="card-label">Máxima sistólica</div><div class="card-val" style="color:var(--orange)">${max}</div><div class="card-unit">mmHg</div></div>
+      <div class="card"><div class="card-label">Mínima sistólica</div><div class="card-val" style="color:var(--green)">${min}</div><div class="card-unit">mmHg</div></div>
+      <div class="card"><div class="card-label">Total mediciones</div><div class="card-val" style="color:var(--blue)">${p.pa.length}</div></div>
+    </div>
+    <div class="chart-card"><h3>Tendencia presión arterial</h3><div class="chart-wrap" style="height:220px"><canvas id="ch-pa-full"></canvas></div></div>
+    <div class="chart-card"><h3>Historial de mediciones</h3>
+      <div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalPA()">➕ Nueva medición</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Fecha/Hora</th><th>Sistólica</th><th>Diastólica</th><th>Pulso</th><th>Contexto</th><th>Brazo</th><th>Estado</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+function renderTabSueno(p){
+  if(!p.sueno.length)return`<div class="no-data">Este paciente aún no tiene registros de sueño.<br><button class="btn-primary" style="margin-top:.75rem;background:linear-gradient(135deg,#7c3aed,#c084fc)" onclick="openModalSueno()">🌙 Agregar primer registro</button></div>`;
+  const avgH=Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
+  const avgCal=Math.round(p.sueno.reduce((a,r)=>a+(+r.cal),0)/p.sueno.length*10)/10;
+  const avgEst=Math.round(p.sueno.reduce((a,r)=>a+r.estres,0)/p.sueno.length*10)/10;
+  const rows=[...p.sueno].reverse().map(r=>{
+    const h=calcH(r.dormir,r.despertar);
+    const c=clsH(h);
+    return`<tr><td>${r.fecha}</td><td><span class="status-pill ${c.cls}">${h}h</span></td><td>${r.dormir}</td><td>${r.despertar}</td><td>${stars(r.cal)}</td><td>${r.estres}/10</td><td>${r.caf} ☕</td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;
+  }).join('');
+  return`
+    <div class="cards-row">
+      <div class="card"><div class="card-label">Promedio horas</div><div class="card-val" style="color:var(--purple)">${avgH}</div><div class="card-unit">horas/noche</div></div>
+      <div class="card"><div class="card-label">Calidad promedio</div><div class="card-val" style="color:var(--yellow)">${avgCal}</div><div class="card-unit">/ 5</div></div>
+      <div class="card"><div class="card-label">Estrés promedio</div><div class="card-val" style="color:var(--orange)">${avgEst}</div><div class="card-unit">/ 10</div></div>
+      <div class="card"><div class="card-label">Total registros</div><div class="card-val" style="color:var(--teal)">${p.sueno.length}</div></div>
+    </div>
+    <div class="chart-card"><h3>Horas de sueño por noche</h3><div class="chart-wrap" style="height:200px"><canvas id="ch-su-full"></canvas></div></div>
+    <div class="chart-card"><h3>Historial de sueño</h3>
+      <div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalSueno()">🌙 Nueva noche</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Duración</th><th>Acostarse</th><th>Despertar</th><th>Calidad</th><th>Estrés</th><th>Cafeína</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+function renderTabCorr(p){
+  const n=Math.min(p.pa.length,p.sueno.length);
+  if(n<2)return`<div class="no-data">Se necesitan al menos 2 registros de PA y sueño para mostrar correlación.</div>`;
+  return`
+    <div class="alert alert-info">ℹ️ <div>El sueño insuficiente (&lt;6h) puede elevar la presión sistólica 5–15 mmHg. Revisa si existe patrón en este paciente.</div></div>
+    <div class="two-col">
+      <div class="chart-card"><h3>Sueño vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr1"></canvas></div></div>
+      <div class="chart-card"><h3>Estrés vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr2"></canvas></div></div>
+    </div>
+    <div class="chart-card"><h3>Tendencia combinada (sueño + PA)</h3><div class="chart-wrap" style="height:240px"><canvas id="ch-dual"></canvas></div></div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  CHARTS DEL PACIENTE
+// ════════════════════════════════════════════════════════
+function drawPatientCharts(p){
+  const labels7=p.pa.slice(-7).map(r=>r.fecha.slice(5));
+  const sis7=p.pa.slice(-7).map(r=>r.sis);
+  const dia7=p.pa.slice(-7).map(r=>r.dia);
+  const su7=p.sueno.slice(-7);
+
+  const lineOpts=(yl,yr)=>({
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#7d8590',font:{size:10},boxWidth:10}}},
+    scales:{
+      x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},
+      [yl||'y']:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},
+      ...(yr?{[yr]:{position:'right',ticks:{color:'#7d8590',font:{size:9}},grid:{display:false}}}:{}),
+    },
+    interaction:{intersect:false,mode:'index'}
+  });
+
+  // Resumen PA mini
+  const c1=document.getElementById('ch-pa')?.getContext('2d');
+  if(c1&&p.pa.length>0){
+    chartInstances['ch-pa']=new Chart(c1,{type:'line',data:{labels:labels7,datasets:[
+      {label:'Sistólica',data:sis7,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#ff6b6b'},
+      {label:'Diastólica',data:dia7,borderColor:'#74c0fc',backgroundColor:'rgba(116,192,252,.05)',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#74c0fc'},
+    ]},options:lineOpts()});
+  }
+
+  // Resumen sueño mini
+  const c2=document.getElementById('ch-su')?.getContext('2d');
+  if(c2&&su7.length>0){
+    const horas=su7.map(r=>calcH(r.dormir,r.despertar));
+    chartInstances['ch-su']=new Chart(c2,{type:'bar',data:{labels:su7.map(r=>r.fecha.slice(5)),datasets:[{data:horas,backgroundColor:horas.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});
+  }
+
+  // Tab PA full
+  const c3=document.getElementById('ch-pa-full')?.getContext('2d');
+  if(c3&&p.pa.length>0){
+    chartInstances['ch-pa-f']=new Chart(c3,{type:'line',data:{labels:p.pa.map(r=>r.fecha.slice(5)),datasets:[
+      {label:'Sistólica',data:p.pa.map(r=>r.sis),borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#ff6b6b'},
+      {label:'Diastólica',data:p.pa.map(r=>r.dia),borderColor:'#74c0fc',fill:false,tension:.4,pointRadius:4,pointBackgroundColor:'#74c0fc'},
+      {label:'Pulso',data:p.pa.map(r=>r.pulso),borderColor:'#34d399',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#34d399',borderDash:[4,3]},
+    ]},options:lineOpts()});
+  }
+
+  // Tab sueño full
+  const c4=document.getElementById('ch-su-full')?.getContext('2d');
+  if(c4&&p.sueno.length>0){
+    const hs=p.sueno.map(r=>calcH(r.dormir,r.despertar));
+    chartInstances['ch-su-f']=new Chart(c4,{type:'bar',data:{labels:p.sueno.map(r=>r.fecha.slice(5)),datasets:[{data:hs,backgroundColor:hs.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});
+  }
+
+  // Correlaciones
+  const n=Math.min(p.pa.length,p.sueno.length);
+  if(n>=2){
+    const corrData=Array.from({length:n},(_,i)=>({x:calcH(p.sueno[i].dormir,p.sueno[i].despertar),y:p.pa[i].sis}));
+    const corrData2=Array.from({length:n},(_,i)=>({x:p.sueno[i].estres,y:p.pa[i].sis}));
+    const scatterOpts=(xl,yl)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:xl,color:'#7d8590',font:{size:10}},ticks:{color:'#7d8590'},grid:{color:'rgba(255,255,255,.03)'}},y:{title:{display:true,text:yl,color:'#7d8590',font:{size:10}},ticks:{color:'#7d8590'},grid:{color:'rgba(255,255,255,.03)'}}}});
+
+    const c5=document.getElementById('ch-corr1')?.getContext('2d');
+    if(c5) chartInstances['corr1']=new Chart(c5,{type:'scatter',data:{datasets:[{data:corrData,backgroundColor:'#c084fc',pointRadius:6}]},options:scatterOpts('Horas sueño','Sistólica mmHg')});
+
+    const c6=document.getElementById('ch-corr2')?.getContext('2d');
+    if(c6) chartInstances['corr2']=new Chart(c6,{type:'scatter',data:{datasets:[{data:corrData2,backgroundColor:'#ff6b6b',pointRadius:6}]},options:scatterOpts('Estrés (1–10)','Sistólica mmHg')});
+
+    const c7=document.getElementById('ch-dual')?.getContext('2d');
+    if(c7){
+      const dualLabels=p.pa.slice(-n).map(r=>r.fecha.slice(5));
+      const dualH=p.sueno.slice(-n).map(r=>calcH(r.dormir,r.despertar));
+      const dualSis=p.pa.slice(-n).map(r=>r.sis);
+      chartInstances['dual']=new Chart(c7,{type:'line',data:{labels:dualLabels,datasets:[
+        {label:'Sueño (h)',data:dualH,borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:4,yAxisID:'yS'},
+        {label:'Sistólica',data:dualSis,borderColor:'#ff6b6b',fill:false,tension:.4,pointRadius:4,yAxisID:'yPA'},
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#7d8590',font:{size:10}}}},scales:{x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},yS:{position:'left',title:{display:true,text:'Horas sueño',color:'#c084fc',font:{size:9}},ticks:{color:'#c084fc'},grid:{display:false}},yPA:{position:'right',title:{display:true,text:'Sistólica mmHg',color:'#ff6b6b',font:{size:9}},ticks:{color:'#ff6b6b'},grid:{color:'rgba(255,255,255,.03)'}}}}});
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  MODALES
+// ════════════════════════════════════════════════════════
+function openAddModal(){document.getElementById('modal-add').style.display='flex';}
+function openModalPA(){
+  document.getElementById('pa-fecha').value=today();
+  document.getElementById('pa-hora').value=nowTime();
+  document.getElementById('modal-pa').style.display='flex';
+}
+function openModalSueno(){
+  document.getElementById('su-fecha').value=today();
+  document.getElementById('modal-sueno').style.display='flex';
+}
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModalIfBg(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+
+// ════════════════════════════════════════════════════════
+//  CRUD
+// ════════════════════════════════════════════════════════
+function addPatient(){
+  const nombre=document.getElementById('np-nombre').value.trim();
+  if(!nombre){alert('El nombre es obligatorio.');return;}
+  const colors=['#c084fc','#74c0fc','#34d399','#ffa94d','#ff6b6b','#fde68a','#f472b6','#38bdf8','#a78bfa'];
+  const p={
+    id:db.nextId++,
+    nombre,
+    edad:+document.getElementById('np-edad').value||0,
+    sexo:document.getElementById('np-sexo').value,
+    exp:document.getElementById('np-id').value||`EXP-${String(db.nextId-1).padStart(3,'0')}`,
+    dx:document.getElementById('np-dx').value,
+    med:document.getElementById('np-med').value,
+    tel:document.getElementById('np-tel').value,
+    color:colors[(db.nextId-2)%colors.length],
+    pa:[],sueno:[]
+  };
+  db.patients.push(p);
+  saveData();
+  closeModal('modal-add');
+  // reset
+  ['np-nombre','np-edad','np-id','np-dx','np-med','np-tel'].forEach(id=>document.getElementById(id).value='');
+  renderSidebar();
+  selectPatient(p.id);
+}
+
+function savePA(){
+  const sis=+document.getElementById('pa-sis').value;
+  const dia=+document.getElementById('pa-dia').value;
+  if(!sis||!dia||sis<70||sis>250||dia<40||dia>150){alert('Valores de presión arterial no válidos.');return;}
+  const p=getPatient();
+  if(!p){alert('Selecciona un paciente primero.');return;}
+  p.pa.push({
+    fecha:document.getElementById('pa-fecha').value||today(),
+    hora:document.getElementById('pa-hora').value||nowTime(),
+    sis,dia,
+    pulso:+document.getElementById('pa-pulso').value||72,
+    brazo:document.getElementById('pa-brazo').value,
+    pos:document.getElementById('pa-pos').value,
+    contexto:document.getElementById('pa-ctx').value,
+    notas:document.getElementById('pa-notas').value,
+  });
+  p.pa.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  saveData();
+  closeModal('modal-pa');
+  ['pa-sis','pa-dia','pa-pulso','pa-notas'].forEach(id=>document.getElementById(id).value='');
+  renderSidebar();
+  renderPatient();
+}
+
+function saveSueno(){
+  const dormir=document.getElementById('su-dormir').value;
+  const despertar=document.getElementById('su-despertar').value;
+  if(!dormir||!despertar){alert('Ingresa hora de acostarse y despertar.');return;}
+  const p=getPatient();
+  if(!p){alert('Selecciona un paciente primero.');return;}
+  p.sueno.push({
+    fecha:document.getElementById('su-fecha').value||today(),
+    dormir,despertar,
+    cal:document.getElementById('su-cal').value,
+    estres:+document.getElementById('su-estres').value,
+    act:+document.getElementById('su-act').value,
+    caf:+document.getElementById('su-caf').value,
+    alc:+document.getElementById('su-alc').value,
+    int:+document.getElementById('su-int').value||0,
+    notas:document.getElementById('su-notas').value,
+  });
+  p.sueno.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  saveData();
+  closeModal('modal-sueno');
+  document.getElementById('su-notas').value='';
+  renderSidebar();
+  renderPatient();
+}
+
+function updateField(id,field,val){
+  const p=db.patients.find(p=>p.id===id);
+  if(p){p[field]=val;saveData();renderSidebar();}
+}
+
+function deletePatient(id){
+  if(!confirm('¿Eliminar este paciente y todos sus registros? Esta acción no se puede deshacer.'))return;
+  db.patients=db.patients.filter(p=>p.id!==id);
+  saveData();
+  activePatientId=null;
+  renderSidebar();
+  renderOverview();
+}
+
+function exportCSV(id){
+  const p=db.patients.find(p=>p.id===id);
+  if(!p)return;
+  let csv='Tipo,Fecha,Hora,Sistolica,Diastolica,Pulso,Contexto,Brazo,Notas\n';
+  p.pa.forEach(r=>csv+=`PA,${r.fecha},${r.hora},${r.sis},${r.dia},${r.pulso},${r.contexto},${r.brazo},"${r.notas}"\n`);
+  csv+='\nFecha,Dormir,Despertar,Horas,Calidad,Estres,Cafeina,Alcohol,Notas\n';
+  p.sueno.forEach(r=>csv+=`${r.fecha},${r.dormir},${r.despertar},${calcH(r.dormir,r.despertar)},${r.cal},${r.estres},${r.caf},${r.alc},"${r.notas}"\n`);
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`${p.exp}_${p.nombre.replace(/ /g,'_')}.csv`;
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+renderSidebar();
+renderOverview();
+</script>
+</body>
+</html>
