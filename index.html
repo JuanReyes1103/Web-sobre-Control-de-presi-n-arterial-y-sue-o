@@ -195,6 +195,14 @@ tr:hover td{background:rgba(255,255,255,.015);}
 .main::-webkit-scrollbar{width:5px;}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
+
+/* ── Acciones de fila ── */
+.row-actions{display:flex;gap:.3rem;opacity:0;transition:opacity .15s;}
+tr:hover .row-actions{opacity:1;}
+.btn-edit-row{background:transparent;border:1px solid var(--b2);color:var(--muted2);border-radius:6px;padding:.2rem .45rem;font-size:.7rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.btn-edit-row:hover{border-color:var(--blue);color:var(--blue);background:rgba(116,192,252,.08);}
+.btn-del-row{background:transparent;border:1px solid transparent;color:var(--muted);border-radius:6px;padding:.2rem .45rem;font-size:.7rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.btn-del-row:hover{border-color:rgba(255,107,107,.4);color:#f87171;background:rgba(255,107,107,.08);}
 </style>
 </head>
 <body>
@@ -336,6 +344,66 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
 </div>
 
+<!-- MODAL EDITAR PA -->
+<div class="modal-bg" id="modal-edit-pa" style="display:none" onclick="closeModalIfBg(event,'modal-edit-pa')">
+  <div class="modal">
+    <h2>Editar medición de PA</h2>
+    <div class="form-grid">
+      <div class="fg"><label>Sistólica (mmHg) *</label><input id="epa-sis" type="number" min="70" max="250"></div>
+      <div class="fg"><label>Diastólica (mmHg) *</label><input id="epa-dia" type="number" min="40" max="150"></div>
+      <div class="fg"><label>Pulso (lpm)</label><input id="epa-pulso" type="number" min="30" max="220"></div>
+      <div class="fg"><label>Brazo</label><select id="epa-brazo"><option value="izquierdo">Izquierdo</option><option value="derecho">Derecho</option></select></div>
+      <div class="fg"><label>Posición</label><select id="epa-pos"><option value="sentado">Sentado</option><option value="acostado">Acostado</option><option value="de pie">De pie</option></select></div>
+      <div class="fg"><label>Contexto</label><select id="epa-ctx"><option value="reposo">Reposo</option><option value="post-ejercicio">Post ejercicio</option><option value="post-comida">Post comida</option><option value="estrés">Estrés</option><option value="medicación">Con medicación</option></select></div>
+      <div class="fg"><label>Fecha</label><input id="epa-fecha" type="date"></div>
+      <div class="fg"><label>Hora</label><input id="epa-hora" type="time"></div>
+      <div class="fg" style="grid-column:span 2"><label>Notas</label><input id="epa-notas" type="text"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger-sm" onclick="deletePA()">🗑 Eliminar</button>
+      <div style="flex:1"></div>
+      <button class="btn-sec" onclick="closeModal('modal-edit-pa')">Cancelar</button>
+      <button class="btn-primary" onclick="saveEditPA()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR SUEÑO -->
+<div class="modal-bg" id="modal-edit-sueno" style="display:none" onclick="closeModalIfBg(event,'modal-edit-sueno')">
+  <div class="modal">
+    <h2>Editar registro de sueño</h2>
+    <div class="form-grid">
+      <div class="fg"><label>Fecha (noche)</label><input id="esu-fecha" type="date"></div>
+      <div class="fg"><label>Hora de acostarse</label><input id="esu-dormir" type="time"></div>
+      <div class="fg"><label>Hora de despertar</label><input id="esu-despertar" type="time"></div>
+      <div class="fg"><label>Calidad percibida</label>
+        <select id="esu-cal">
+          <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+          <option value="4">⭐⭐⭐⭐ Bueno</option>
+          <option value="3">⭐⭐⭐ Regular</option>
+          <option value="2">⭐⭐ Malo</option>
+          <option value="1">⭐ Muy malo</option>
+        </select>
+      </div>
+      <div class="fg"><label>Interrupciones</label><input id="esu-int" type="number" min="0" max="20"></div>
+    </div>
+    <div style="margin-top:1rem">
+      <p style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;">Factores</p>
+      <div class="range-row"><label>Estrés del día</label><input type="range" id="esu-estres" min="1" max="10" value="5" oninput="rv('esu-estres','erv-estres')"><span class="range-val" id="erv-estres">5</span></div>
+      <div class="range-row"><label>Actividad física</label><input type="range" id="esu-act" min="1" max="10" value="4" oninput="rv('esu-act','erv-act')"><span class="range-val" id="erv-act">4</span></div>
+      <div class="range-row"><label>Cafeína (tazas)</label><input type="range" id="esu-caf" min="0" max="10" value="2" oninput="rv('esu-caf','erv-caf')"><span class="range-val" id="erv-caf">2</span></div>
+      <div class="range-row"><label>Alcohol (copas)</label><input type="range" id="esu-alc" min="0" max="10" value="0" oninput="rv('esu-alc','erv-alc')"><span class="range-val" id="erv-alc">0</span></div>
+    </div>
+    <div class="fg" style="margin-top:.5rem"><label>Notas</label><input id="esu-notas" type="text"></div>
+    <div class="modal-footer">
+      <button class="btn-danger-sm" onclick="deleteSueno()">🗑 Eliminar</button>
+      <div style="flex:1"></div>
+      <button class="btn-sec" onclick="closeModal('modal-edit-sueno')">Cancelar</button>
+      <button class="btn-primary" onclick="saveEditSueno()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════
 //  DATA STORE
@@ -376,6 +444,8 @@ if(db.patients.length===0){
 let activePatientId=null;
 let activeSubTab='perfil';
 let chartInstances={};
+let editingPAIdx=null;
+let editingSuenoIdx=null;
 
 // ════════════════════════════════
 //  UTILS
@@ -866,13 +936,30 @@ function switchSubTab(t){activeSubTab=t;renderPatient();}
 // ════════════════════════════════
 function renderTabPA(p){
   if(!p.pa.length)return`<div class="no-data">Este paciente aún no tiene mediciones de presión arterial.<br><button class="btn-primary" style="margin-top:.75rem" onclick="openModalPA()">➕ Agregar primera medición</button></div>`;
-  const rows=[...p.pa].reverse().map(r=>{const c=clsPA(r.sis,r.dia);return`<tr><td>${r.fecha} ${r.hora}</td><td><strong>${r.sis}</strong></td><td><strong>${r.dia}</strong></td><td>${r.pulso}</td><td>${r.contexto}</td><td>${r.brazo}</td><td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;}).join('');
-  const avg=Math.round(p.pa.reduce((a,r)=>a+r.sis,0)/p.pa.length);
+  const total=p.pa.length;
+  const rows=[...p.pa].map((r,i)=>({r,realIdx:i})).reverse().map(({r,realIdx})=>{
+    const c=clsPA(r.sis,r.dia);
+    return`<tr>
+      <td>${r.fecha} ${r.hora}</td>
+      <td><strong>${r.sis}</strong></td>
+      <td><strong>${r.dia}</strong></td>
+      <td>${r.pulso}</td>
+      <td>${r.contexto}</td>
+      <td>${r.brazo}</td>
+      <td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td>
+      <td style="color:var(--muted);font-size:.75rem;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</td>
+      <td><div class="row-actions">
+        <button class="btn-edit-row" onclick="openEditPA(${realIdx})">✏️ Editar</button>
+        <button class="btn-del-row" onclick="quickDeletePA(${realIdx})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  const avg=Math.round(p.pa.reduce((a,r)=>a+r.sis,0)/total);
   const max=Math.max(...p.pa.map(r=>r.sis));
   const min=Math.min(...p.pa.map(r=>r.sis));
-  return`<div class="cards-row"><div class="card"><div class="card-label">Promedio sistólica</div><div class="card-val" style="color:var(--red)">${avg}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Máxima sistólica</div><div class="card-val" style="color:var(--orange)">${max}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Mínima sistólica</div><div class="card-val" style="color:var(--green)">${min}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Total mediciones</div><div class="card-val" style="color:var(--blue)">${p.pa.length}</div></div></div>
+  return`<div class="cards-row"><div class="card"><div class="card-label">Promedio sistólica</div><div class="card-val" style="color:var(--red)">${avg}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Máxima sistólica</div><div class="card-val" style="color:var(--orange)">${max}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Mínima sistólica</div><div class="card-val" style="color:var(--green)">${min}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Total mediciones</div><div class="card-val" style="color:var(--blue)">${total}</div></div></div>
     <div class="chart-card"><h3>Tendencia presión arterial</h3><div class="chart-wrap" style="height:220px"><canvas id="ch-pa-full"></canvas></div></div>
-    <div class="chart-card"><h3>Historial de mediciones</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalPA()">➕ Nueva medición</button></div><div class="table-wrap"><table><thead><tr><th>Fecha/Hora</th><th>Sistólica</th><th>Diastólica</th><th>Pulso</th><th>Contexto</th><th>Brazo</th><th>Estado</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    <div class="chart-card"><h3>Historial de mediciones</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalPA()">➕ Nueva medición</button></div><div class="table-wrap"><table><thead><tr><th>Fecha/Hora</th><th>Sistólica</th><th>Diastólica</th><th>Pulso</th><th>Contexto</th><th>Brazo</th><th>Estado</th><th>Notas</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function renderTabSueno(p){
@@ -880,10 +967,26 @@ function renderTabSueno(p){
   const avgH=Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
   const avgCal=Math.round(p.sueno.reduce((a,r)=>a+(+r.cal),0)/p.sueno.length*10)/10;
   const avgEst=Math.round(p.sueno.reduce((a,r)=>a+r.estres,0)/p.sueno.length*10)/10;
-  const rows=[...p.sueno].reverse().map(r=>{const h=calcH(r.dormir,r.despertar);const c=clsH(h);return`<tr><td>${r.fecha}</td><td><span class="status-pill ${c.cls}">${h}h</span></td><td>${r.dormir}</td><td>${r.despertar}</td><td>${stars(r.cal)}</td><td>${r.estres}/10</td><td>${r.caf} ☕</td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;}).join('');
+  const rows=[...p.sueno].map((r,i)=>({r,realIdx:i})).reverse().map(({r,realIdx})=>{
+    const h=calcH(r.dormir,r.despertar);const c=clsH(h);
+    return`<tr>
+      <td>${r.fecha}</td>
+      <td><span class="status-pill ${c.cls}">${h}h</span></td>
+      <td>${r.dormir}</td>
+      <td>${r.despertar}</td>
+      <td>${stars(r.cal)}</td>
+      <td>${r.estres}/10</td>
+      <td>${r.caf} ☕</td>
+      <td style="color:var(--muted);font-size:.75rem;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</td>
+      <td><div class="row-actions">
+        <button class="btn-edit-row" onclick="openEditSueno(${realIdx})">✏️ Editar</button>
+        <button class="btn-del-row" onclick="quickDeleteSueno(${realIdx})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
   return`<div class="cards-row"><div class="card"><div class="card-label">Promedio horas</div><div class="card-val" style="color:var(--purple)">${avgH}</div><div class="card-unit">horas/noche</div></div><div class="card"><div class="card-label">Calidad promedio</div><div class="card-val" style="color:var(--yellow)">${avgCal}</div><div class="card-unit">/ 5</div></div><div class="card"><div class="card-label">Estrés promedio</div><div class="card-val" style="color:var(--orange)">${avgEst}</div><div class="card-unit">/ 10</div></div><div class="card"><div class="card-label">Total registros</div><div class="card-val" style="color:var(--teal)">${p.sueno.length}</div></div></div>
     <div class="chart-card"><h3>Horas de sueño por noche</h3><div class="chart-wrap" style="height:200px"><canvas id="ch-su-full"></canvas></div></div>
-    <div class="chart-card"><h3>Historial de sueño</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalSueno()">🌙 Nueva noche</button></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Duración</th><th>Acostarse</th><th>Despertar</th><th>Calidad</th><th>Estrés</th><th>Cafeína</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    <div class="chart-card"><h3>Historial de sueño</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalSueno()">🌙 Nueva noche</button></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Duración</th><th>Acostarse</th><th>Despertar</th><th>Calidad</th><th>Estrés</th><th>Cafeína</th><th>Notas</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function renderTabCorr(p){
@@ -973,6 +1076,107 @@ function saveSueno(){
 }
 
 function updateField(id,field,val){const p=db.patients.find(p=>p.id===id);if(p){p[field]=val;saveData();renderSidebar();}}
+
+// ── Editar PA ──
+function openEditPA(realIdx){
+  const p=getPatient();if(!p)return;
+  editingPAIdx=realIdx;
+  const r=p.pa[realIdx];
+  document.getElementById('epa-sis').value=r.sis;
+  document.getElementById('epa-dia').value=r.dia;
+  document.getElementById('epa-pulso').value=r.pulso;
+  document.getElementById('epa-brazo').value=r.brazo||'izquierdo';
+  document.getElementById('epa-pos').value=r.pos||'sentado';
+  document.getElementById('epa-ctx').value=r.contexto||'reposo';
+  document.getElementById('epa-fecha').value=r.fecha;
+  document.getElementById('epa-hora').value=r.hora;
+  document.getElementById('epa-notas').value=r.notas||'';
+  document.getElementById('modal-edit-pa').style.display='flex';
+}
+function saveEditPA(){
+  const sis=+document.getElementById('epa-sis').value;
+  const dia=+document.getElementById('epa-dia').value;
+  if(!sis||!dia||sis<70||sis>250||dia<40||dia>150){alert('Valores de PA no válidos.');return;}
+  const p=getPatient();if(!p||editingPAIdx===null)return;
+  p.pa[editingPAIdx]={
+    fecha:document.getElementById('epa-fecha').value,
+    hora:document.getElementById('epa-hora').value,
+    sis,dia,
+    pulso:+document.getElementById('epa-pulso').value||72,
+    brazo:document.getElementById('epa-brazo').value,
+    pos:document.getElementById('epa-pos').value,
+    contexto:document.getElementById('epa-ctx').value,
+    notas:document.getElementById('epa-notas').value,
+  };
+  p.pa.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  saveData();closeModal('modal-edit-pa');editingPAIdx=null;
+  renderSidebar();renderPatient();
+}
+function deletePA(){
+  if(!confirm('¿Eliminar esta medición de PA?'))return;
+  const p=getPatient();if(!p||editingPAIdx===null)return;
+  p.pa.splice(editingPAIdx,1);
+  saveData();closeModal('modal-edit-pa');editingPAIdx=null;
+  renderSidebar();renderPatient();
+}
+
+// ── Editar Sueño ──
+function openEditSueno(realIdx){
+  const p=getPatient();if(!p)return;
+  editingSuenoIdx=realIdx;
+  const r=p.sueno[realIdx];
+  document.getElementById('esu-fecha').value=r.fecha;
+  document.getElementById('esu-dormir').value=r.dormir;
+  document.getElementById('esu-despertar').value=r.despertar;
+  document.getElementById('esu-cal').value=r.cal;
+  document.getElementById('esu-int').value=r.int||0;
+  document.getElementById('esu-estres').value=r.estres;document.getElementById('erv-estres').textContent=r.estres;
+  document.getElementById('esu-act').value=r.act;document.getElementById('erv-act').textContent=r.act;
+  document.getElementById('esu-caf').value=r.caf;document.getElementById('erv-caf').textContent=r.caf;
+  document.getElementById('esu-alc').value=r.alc;document.getElementById('erv-alc').textContent=r.alc;
+  document.getElementById('esu-notas').value=r.notas||'';
+  document.getElementById('modal-edit-sueno').style.display='flex';
+}
+function saveEditSueno(){
+  const dormir=document.getElementById('esu-dormir').value;
+  const despertar=document.getElementById('esu-despertar').value;
+  if(!dormir||!despertar){alert('Ingresa hora de acostarse y despertar.');return;}
+  const p=getPatient();if(!p||editingSuenoIdx===null)return;
+  p.sueno[editingSuenoIdx]={
+    fecha:document.getElementById('esu-fecha').value,
+    dormir,despertar,
+    cal:document.getElementById('esu-cal').value,
+    estres:+document.getElementById('esu-estres').value,
+    act:+document.getElementById('esu-act').value,
+    caf:+document.getElementById('esu-caf').value,
+    alc:+document.getElementById('esu-alc').value,
+    int:+document.getElementById('esu-int').value||0,
+    notas:document.getElementById('esu-notas').value,
+  };
+  p.sueno.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  saveData();closeModal('modal-edit-sueno');editingSuenoIdx=null;
+  renderSidebar();renderPatient();
+}
+function deleteSueno(){
+  if(!confirm('¿Eliminar este registro de sueño?'))return;
+  const p=getPatient();if(!p||editingSuenoIdx===null)return;
+  p.sueno.splice(editingSuenoIdx,1);
+  saveData();closeModal('modal-edit-sueno');editingSuenoIdx=null;
+  renderSidebar();renderPatient();
+}
+
+function quickDeletePA(idx){
+  if(!confirm('¿Eliminar esta medición de PA?'))return;
+  const p=getPatient();if(!p)return;
+  p.pa.splice(idx,1);
+  saveData();renderSidebar();renderPatient();
+}
+function quickDeleteSueno(idx){
+  if(!confirm('¿Eliminar este registro de sueño?'))return;
+  const p=getPatient();if(!p)return;
+  p.sueno.splice(idx,1);
+  saveData();renderSidebar();renderPatient();
+}
 
 function deletePatient(id){
   if(!confirm('¿Eliminar este paciente y todos sus registros? Esta acción no se puede deshacer.'))return;
