@@ -18,12 +18,10 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
 
-/* ── Sidebar + main layout ── */
 .app{display:flex;flex:1;overflow:hidden;height:100vh;}
 .sidebar{width:260px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
 
-/* ── Sidebar header ── */
 .sidebar-head{padding:1.25rem 1rem .75rem;border-bottom:1px solid var(--b1);}
 .brand{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;}
 .brand-pill{background:linear-gradient(135deg,#ff6b6b,#c084fc);color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.08em;padding:.2rem .5rem;border-radius:4px;}
@@ -35,8 +33,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .search-box input::placeholder{color:var(--muted);}
 .search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;}
 
-/* ── Patient list ── */
+/* ── Panel general nav item en sidebar ── */
 .sidebar-section-label{font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.75rem 1rem .4rem;}
+
+.nav-overview{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border-radius:var(--r);cursor:pointer;transition:background .15s;margin:0 .5rem .25rem;position:relative;}
+.nav-overview:hover{background:var(--s2);}
+.nav-overview.active{background:linear-gradient(135deg,rgba(255,107,107,.12),rgba(192,132,252,.12));border:1px solid rgba(255,107,107,.2);}
+.nav-overview .nav-icon{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(192,132,252,.2));display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.nav-overview .nav-info{flex:1;}
+.nav-overview .nav-name{font-size:.82rem;font-weight:500;}
+.nav-overview .nav-meta{font-size:.7rem;color:var(--muted);}
+
 .patient-list{flex:1;overflow-y:auto;padding:0 .5rem .5rem;}
 .patient-list::-webkit-scrollbar{width:4px;}
 .patient-list::-webkit-scrollbar-track{background:transparent;}
@@ -66,10 +73,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:glow 2s ease-in-out infinite;}
 @keyframes glow{0%,100%{box-shadow:0 0 4px var(--green)}50%{box-shadow:0 0 12px var(--green)}}
 
-/* ── Content area ── */
 .content{padding:1.5rem 1.75rem;flex:1;}
 
-/* ── Empty state ── */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;text-align:center;}
 .empty-state .icon{font-size:3rem;opacity:.4;}
 .empty-state h3{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--muted2);}
@@ -91,21 +96,51 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .card-sub{font-size:.72rem;color:var(--muted);margin-top:.45rem;}
 .status-pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.67rem;font-weight:600;padding:.2rem .55rem;border-radius:20px;margin-top:.45rem;}
 
-/* ── Two col ── */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
 @media(max-width:900px){.two-col{grid-template-columns:1fr;}.app{flex-direction:column;height:auto;}.sidebar{width:100%;height:auto;max-height:280px;}}
 
-/* ── Chart card ── */
 .chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
 .chart-card h3{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
 .chart-wrap{position:relative;height:200px;}
 
-/* ── Alert ── */
+/* ── Alerts ── */
 .alert{border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.85rem;display:flex;gap:.65rem;font-size:.82rem;line-height:1.5;}
 .alert-danger{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:#fca5a5;}
 .alert-warn{background:rgba(255,169,77,.08);border:1px solid rgba(255,169,77,.2);color:#fdba74;}
 .alert-info{background:rgba(116,192,252,.08);border:1px solid rgba(116,192,252,.2);color:#93c5fd;}
 .alert-ok{background:rgba(105,219,124,.08);border:1px solid rgba(105,219,124,.2);color:#86efac;}
+
+/* ── Recomendaciones ── */
+.rec-section{margin-bottom:1.25rem;}
+.rec-section-title{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.rec-section-title::after{content:'';flex:1;height:1px;background:var(--b1);}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.75rem;}
+.rec-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1rem 1.1rem;display:flex;gap:.85rem;transition:border-color .2s,transform .15s;}
+.rec-card:hover{border-color:var(--b2);transform:translateY(-1px);}
+.rec-icon{font-size:1.4rem;flex-shrink:0;line-height:1;}
+.rec-body{}
+.rec-title{font-size:.82rem;font-weight:600;margin-bottom:.25rem;}
+.rec-desc{font-size:.76rem;color:var(--muted2);line-height:1.55;}
+.rec-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:.15rem .45rem;border-radius:4px;margin-top:.5rem;text-transform:uppercase;}
+.tag-urgent{background:rgba(255,107,107,.15);color:#f87171;border:1px solid rgba(255,107,107,.25);}
+.tag-warn{background:rgba(255,169,77,.15);color:#fb923c;border:1px solid rgba(255,169,77,.25);}
+.tag-info{background:rgba(116,192,252,.15);color:#60a5fa;border:1px solid rgba(116,192,252,.25);}
+.tag-ok{background:rgba(105,219,124,.15);color:#4ade80;border:1px solid rgba(105,219,124,.25);}
+
+/* ── Rec paciente individual ── */
+.rec-patient-block{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.rec-patient-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;}
+.rec-patient-header span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.rec-list{display:flex;flex-direction:column;gap:.55rem;}
+.rec-item{display:flex;gap:.7rem;align-items:flex-start;}
+.rec-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem;}
+.dot-red{background:var(--red);}
+.dot-orange{background:var(--orange);}
+.dot-blue{background:var(--blue);}
+.dot-green{background:var(--green);}
+.dot-purple{background:var(--purple);}
+.rec-item-text{font-size:.8rem;color:var(--muted2);line-height:1.55;}
+.rec-item-text strong{color:var(--tx);}
 
 /* ── Form ── */
 .form-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
@@ -136,7 +171,7 @@ td{padding:.6rem .75rem;border-bottom:1px solid var(--b1);}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,.015);}
 
-/* ── Modal overlay ── */
+/* ── Modal ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);padding:2rem;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;}
 .modal h2{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:1.25rem;}
@@ -155,10 +190,8 @@ tr:hover td{background:rgba(255,255,255,.015);}
 .profile-info p{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
 .profile-actions{margin-left:auto;display:flex;gap:.5rem;}
 
-/* ── General tab empty message ── */
 .no-data{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;}
 
-/* ── Scrollbar main ── */
 .main::-webkit-scrollbar{width:5px;}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
@@ -167,9 +200,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <body>
 <div class="app">
 
-<!-- ══════════════════════════════════════════
-     SIDEBAR
-══════════════════════════════════════════ -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-head">
     <div class="brand">
@@ -182,6 +213,16 @@ tr:hover td{background:rgba(255,255,255,.015);}
     </div>
   </div>
 
+  <!-- Botón Panel General siempre visible -->
+  <div class="sidebar-section-label">Vistas</div>
+  <div class="nav-overview active" id="nav-overview-btn" onclick="goOverview()">
+    <div class="nav-icon">📊</div>
+    <div class="nav-info">
+      <div class="nav-name">Panel general</div>
+      <div class="nav-meta">Todos los pacientes</div>
+    </div>
+  </div>
+
   <div class="sidebar-section-label">Pacientes (<span id="count-label">0</span>)</div>
   <div class="patient-list" id="patient-list"></div>
 
@@ -190,12 +231,9 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
 </aside>
 
-<!-- ══════════════════════════════════════════
-     MAIN
-══════════════════════════════════════════ -->
+<!-- MAIN -->
 <div class="main">
 
-  <!-- Top bar (overview mode) -->
   <div class="topbar" id="topbar-overview">
     <div class="topbar-left">
       <h2>Panel general</h2>
@@ -207,7 +245,6 @@ tr:hover td{background:rgba(255,255,255,.015);}
     </div>
   </div>
 
-  <!-- Top bar (patient mode) -->
   <div class="topbar" id="topbar-patient" style="display:none">
     <div class="topbar-left">
       <h2 id="topbar-name">—</h2>
@@ -219,16 +256,11 @@ tr:hover td{background:rgba(255,255,255,.015);}
     </div>
   </div>
 
-  <div class="content" id="main-content">
-    <!-- rendered by JS -->
-  </div>
+  <div class="content" id="main-content"></div>
+</div>
 </div>
 
-</div><!-- /app -->
-
-<!-- ══════════════════════════════════════════
-     MODAL — AGREGAR PACIENTE
-══════════════════════════════════════════ -->
+<!-- MODAL AGREGAR PACIENTE -->
 <div class="modal-bg" id="modal-add" style="display:none" onclick="closeModalIfBg(event,'modal-add')">
   <div class="modal">
     <h2>Nuevo paciente</h2>
@@ -248,9 +280,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL — REGISTRAR PA
-══════════════════════════════════════════ -->
+<!-- MODAL PA -->
 <div class="modal-bg" id="modal-pa" style="display:none" onclick="closeModalIfBg(event,'modal-pa')">
   <div class="modal">
     <h2>Nueva medición de presión arterial</h2>
@@ -272,9 +302,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL — REGISTRAR SUEÑO
-══════════════════════════════════════════ -->
+<!-- MODAL SUEÑO -->
 <div class="modal-bg" id="modal-sueno" style="display:none" onclick="closeModalIfBg(event,'modal-sueno')">
   <div class="modal">
     <h2>Nuevo registro de sueño</h2>
@@ -309,84 +337,58 @@ tr:hover td{background:rgba(255,255,255,.015);}
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════
-//  DATA STORE (localStorage para persistencia)
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
+//  DATA STORE
+// ════════════════════════════════
 const STORE_KEY = 'eq2_data_v2';
-
-function loadData(){
-  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {patients:[],nextId:1}; }
-  catch{ return {patients:[],nextId:1}; }
-}
-function saveData(){
-  localStorage.setItem(STORE_KEY, JSON.stringify(db));
-}
-
+function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{patients:[],nextId:1};}catch{return{patients:[],nextId:1};}}
+function saveData(){localStorage.setItem(STORE_KEY,JSON.stringify(db));}
 let db = loadData();
 
-// Seed demo si está vacío
-if(db.patients.length === 0){
-  const seedPats = [
+if(db.patients.length===0){
+  const seedPats=[
     {id:1,nombre:'Ana García López',edad:52,sexo:'F',exp:'EXP-001',dx:'Hipertensión esencial',med:'Losartán 50mg',tel:'998-100-0001',color:'#c084fc'},
     {id:2,nombre:'Roberto Mendez',edad:67,sexo:'M',exp:'EXP-002',dx:'Hipertensión grado 2, DM2',med:'Amlodipino 5mg, Metformina',tel:'998-100-0002',color:'#74c0fc'},
     {id:3,nombre:'María Torres',edad:38,sexo:'F',exp:'EXP-003',dx:'Sin diagnóstico previo',med:'Ninguna',tel:'998-100-0003',color:'#34d399'},
     {id:4,nombre:'Carlos Ruiz Díaz',edad:45,sexo:'M',exp:'EXP-004',dx:'Estrés laboral crónico',med:'Ninguna',tel:'998-100-0004',color:'#ffa94d'},
   ];
-  const daysAgo = (n)=>{
-    const d = new Date(); d.setDate(d.getDate()-n);
-    return d.toISOString().slice(0,10);
-  };
+  const daysAgo=(n)=>{const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);};
   seedPats.forEach(p=>{
     p.pa=[];p.sueno=[];
     const baseSis=[p.id===2?148:p.id===1?135:p.id===4?128:115];
     for(let i=6;i>=0;i--){
-      const s = baseSis[0]+Math.round((Math.random()-.3)*12);
-      const d = Math.round(s*.62+Math.random()*8);
-      p.pa.push({fecha:daysAgo(i),hora:'07:'+String(10+Math.floor(Math.random()*40)).padStart(2,'0'),
-        sis:s,dia:d,pulso:65+Math.round(Math.random()*20),
-        contexto:'reposo',brazo:'izquierdo',notas:''});
-      const dormin = 22+Math.round(Math.random()*2);
-      const dormH  = `${dormin%24}:${Math.random()>.5?'30':'00'}`;
-      const wakeH  = `0${5+Math.round(Math.random()*2)}:${Math.random()>.5?'30':'00'}`;
-      p.sueno.push({fecha:daysAgo(i),dormir:dormH,despertar:wakeH,
-        cal:String(2+Math.round(Math.random()*3)),
-        estres:2+Math.round(Math.random()*7),act:2+Math.round(Math.random()*7),
-        caf:Math.round(Math.random()*4),alc:0,int:Math.round(Math.random()*3),notas:''});
+      const s=baseSis[0]+Math.round((Math.random()-.3)*12);
+      const d=Math.round(s*.62+Math.random()*8);
+      p.pa.push({fecha:daysAgo(i),hora:'07:'+String(10+Math.floor(Math.random()*40)).padStart(2,'0'),sis:s,dia:d,pulso:65+Math.round(Math.random()*20),contexto:'reposo',brazo:'izquierdo',notas:''});
+      const dormin=22+Math.round(Math.random()*2);
+      const dormH=`${dormin%24}:${Math.random()>.5?'30':'00'}`;
+      const wakeH=`0${5+Math.round(Math.random()*2)}:${Math.random()>.5?'30':'00'}`;
+      p.sueno.push({fecha:daysAgo(i),dormir:dormH,despertar:wakeH,cal:String(2+Math.round(Math.random()*3)),estres:2+Math.round(Math.random()*7),act:2+Math.round(Math.random()*7),caf:Math.round(Math.random()*4),alc:0,int:Math.round(Math.random()*3),notas:''});
     }
   });
-  db = {patients:seedPats, nextId:5};
+  db={patients:seedPats,nextId:5};
   saveData();
 }
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  ESTADO
-// ════════════════════════════════════════════════════════
-let activePatientId = null;
-let activeSubTab = 'perfil';
-let chartInstances = {};
+// ════════════════════════════════
+let activePatientId=null;
+let activeSubTab='perfil';
+let chartInstances={};
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  UTILS
-// ════════════════════════════════════════════════════════
-function calcH(dormir,despertar){
-  const [dh,dm]=dormir.split(':').map(Number);
-  const [wh,wm]=despertar.split(':').map(Number);
-  let m=(wh*60+wm)-(dh*60+dm);
-  if(m<0)m+=1440;
-  return Math.round(m/6)/10;
-}
+// ════════════════════════════════
+function calcH(dormir,despertar){const[dh,dm]=dormir.split(':').map(Number);const[wh,wm]=despertar.split(':').map(Number);let m=(wh*60+wm)-(dh*60+dm);if(m<0)m+=1440;return Math.round(m/6)/10;}
 function clsPA(s,d){
   if(s>180||d>120)return{label:'Crisis',cls:'badge-danger',emoji:'🚨'};
-  if(s>=140||d>=90) return{label:'HTA G2',cls:'badge-danger',emoji:'🚨'};
-  if(s>=130||d>=80) return{label:'HTA G1',cls:'badge-warn',emoji:'⚠'};
-  if(s>=120)         return{label:'Elevada',cls:'badge-warn',emoji:'⚠'};
+  if(s>=140||d>=90)return{label:'HTA G2',cls:'badge-danger',emoji:'🚨'};
+  if(s>=130||d>=80)return{label:'HTA G1',cls:'badge-warn',emoji:'⚠'};
+  if(s>=120)return{label:'Elevada',cls:'badge-warn',emoji:'⚠'};
   return{label:'Normal',cls:'badge-ok',emoji:'✓'};
 }
-function clsH(h){
-  if(h>=7)return{label:'Óptimo',cls:'badge-ok'};
-  if(h>=6)return{label:'Insuf.',cls:'badge-warn'};
-  return{label:'Defic.',cls:'badge-danger'};
-}
+function clsH(h){if(h>=7)return{label:'Óptimo',cls:'badge-ok'};if(h>=6)return{label:'Insuf.',cls:'badge-warn'};return{label:'Defic.',cls:'badge-danger'};}
 function initials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function today(){return new Date().toISOString().slice(0,10);}
 function nowTime(){return new Date().toTimeString().slice(0,5);}
@@ -394,9 +396,181 @@ function stars(n){return '⭐'.repeat(+n);}
 function destroyCharts(){Object.values(chartInstances).forEach(c=>{try{c.destroy()}catch{}});chartInstances={};}
 function rv(id,vid){document.getElementById(vid).textContent=document.getElementById(id).value;}
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
+//  MOTOR DE RECOMENDACIONES
+// ════════════════════════════════
+
+// Genera recomendaciones personalizadas para un paciente
+function genRecsPatient(p){
+  const recs=[];
+  const lastPA=p.pa.at(-1);
+  const lastS=p.sueno.at(-1);
+
+  if(!lastPA&&!lastS){
+    recs.push({icon:'📋',title:'Registra primeros datos',desc:'Este paciente aún no tiene mediciones. Agrega al menos una medición de PA y una noche de sueño para obtener recomendaciones personalizadas.',tag:'info',tagLabel:'Pendiente',dot:'blue'});
+    return recs;
+  }
+
+  // ─ PA ─
+  if(lastPA){
+    const sis=lastPA.sis, dia=lastPA.dia;
+
+    if(sis>180||dia>120){
+      recs.push({icon:'🚨',title:'Crisis hipertensiva — atención inmediata',desc:`PA actual de ${sis}/${dia} mmHg supera el umbral de crisis. Evalúa derivación a urgencias y revisión de medicación actual.`,tag:'urgent',tagLabel:'Urgente',dot:'red'});
+    } else if(sis>=140||dia>=90){
+      recs.push({icon:'⚠️',title:'Ajuste de medicación antihipertensiva',desc:`PA en rango de HTA grado 2 (${sis}/${dia} mmHg). Considera incrementar dosis o cambiar esquema. Medir 2× al día por 1 semana.`,tag:'urgent',tagLabel:'Prioritario',dot:'red'});
+      recs.push({icon:'🧂',title:'Restricción de sodio < 1.5 g/día',desc:'En hipertensión confirmada, reducir ingesta de sodio puede disminuir la sistólica hasta 8 mmHg.',tag:'warn',tagLabel:'Estilo de vida',dot:'orange'});
+    } else if(sis>=130||dia>=80){
+      recs.push({icon:'📈',title:'Monitoreo más frecuente',desc:`PA en HTA grado 1 (${sis}/${dia} mmHg). Medir al menos cada 2 días y registrar contexto (estrés, comidas, medicación).`,tag:'warn',tagLabel:'Seguimiento',dot:'orange'});
+    } else {
+      recs.push({icon:'✅',title:'Presión arterial en rango normal',desc:`Última PA: ${sis}/${dia} mmHg. Mantener hábitos actuales y continuar monitoreo mensual.`,tag:'ok',tagLabel:'Bien',dot:'green'});
+    }
+
+    // Variabilidad PA si hay ≥3 registros
+    if(p.pa.length>=3){
+      const recientes=p.pa.slice(-5).map(r=>r.sis);
+      const max=Math.max(...recientes), min=Math.min(...recientes);
+      if(max-min>20){
+        recs.push({icon:'📊',title:'Alta variabilidad en PA',desc:`Variación de ${max-min} mmHg en sistólica (últimos ${recientes.length} registros). Revisa consistencia en horario de medicación y factores desencadenantes.`,tag:'warn',tagLabel:'Variabilidad',dot:'orange'});
+      }
+    }
+
+    // Pulso alto
+    if(lastPA.pulso>100){
+      recs.push({icon:'💓',title:'Taquicardia en reposo',desc:`Pulso de ${lastPA.pulso} lpm. Descartar ansiedad, hipertiroidismo o efecto de medicamentos. Considera ECG si persiste.`,tag:'warn',tagLabel:'Pulso',dot:'orange'});
+    }
+  }
+
+  // ─ SUEÑO ─
+  if(lastS){
+    const h=calcH(lastS.dormir,lastS.despertar);
+    const cal=+lastS.cal;
+
+    if(h<5){
+      recs.push({icon:'😴',title:'Sueño severamente insuficiente',desc:`Solo ${h}h registradas anoche. El déficit severo puede elevar la PA sistólica 10–15 mmHg. Priorizar higiene del sueño como intervención primaria.`,tag:'urgent',tagLabel:'Crítico',dot:'red'});
+    } else if(h<6){
+      recs.push({icon:'🌙',title:'Aumentar duración del sueño',desc:`${h}h de sueño son insuficientes (recomendado: 7–9h). Establecer horario fijo y reducir exposición a pantallas 1h antes de dormir.`,tag:'warn',tagLabel:'Sueño',dot:'purple'});
+    } else if(h>=9){
+      recs.push({icon:'⏰',title:'Sueño excesivo — revisar causas',desc:`${h}h de sueño puede indicar depresión, hipotiroidismo o efecto sedante de medicamentos. Evalúa calidad y causas.`,tag:'info',tagLabel:'Exceso',dot:'blue'});
+    }
+
+    if(cal<=2){
+      recs.push({icon:'💤',title:'Calidad de sueño muy baja',desc:'Calidad reportada como mala o muy mala. Investiga ronquidos, apnea del sueño (especialmente si PA es alta), o dolor crónico nocturno.',tag:'warn',tagLabel:'Calidad',dot:'purple'});
+    }
+
+    if(lastS.caf>=4){
+      recs.push({icon:'☕',title:'Ingesta alta de cafeína',desc:`${lastS.caf} tazas registradas. Limitar cafeína después de las 14:00h y a máximo 2 tazas/día para mejorar calidad de sueño y PA.`,tag:'warn',tagLabel:'Cafeína',dot:'orange'});
+    }
+
+    if(lastS.estres>=8){
+      recs.push({icon:'🧘',title:'Estrés elevado — intervención necesaria',desc:`Estrés de ${lastS.estres}/10 reportado. Técnicas de relajación (respiración 4-7-8, meditación 10 min/día) pueden reducir PA y mejorar sueño.`,tag:'warn',tagLabel:'Estrés',dot:'orange'});
+    }
+
+    if(lastS.alc>=3){
+      recs.push({icon:'🍷',title:'Consumo de alcohol afecta el sueño',desc:`${lastS.alc} copas pueden fragmentar las fases profundas de sueño y elevar PA nocturna. Limitar a máximo 1 copa/día.`,tag:'info',tagLabel:'Alcohol',dot:'blue'});
+    }
+  }
+
+  // ─ CORRELACIÓN sueño-PA ─
+  if(p.pa.length>=3&&p.sueno.length>=3){
+    const n=Math.min(p.pa.length,p.sueno.length,7);
+    const pares=Array.from({length:n},(_,i)=>({h:calcH(p.sueno[i].dormir,p.sueno[i].despertar),sis:p.pa[i].sis}));
+    const noches_cortas=pares.filter(x=>x.h<6);
+    const noches_ok=pares.filter(x=>x.h>=7);
+    if(noches_cortas.length>=2&&noches_ok.length>=1){
+      const avgSisCortas=Math.round(noches_cortas.reduce((a,x)=>a+x.sis,0)/noches_cortas.length);
+      const avgSisOk=Math.round(noches_ok.reduce((a,x)=>a+x.sis,0)/noches_ok.length);
+      if(avgSisCortas-avgSisOk>5){
+        recs.push({icon:'🔗',title:'Patrón detectado: sueño corto → PA alta',desc:`Con noches <6h, la PA sistólica promedia ${avgSisCortas} mmHg; con ≥7h promedia ${avgSisOk} mmHg. Priorizar el sueño como intervención antihipertensiva.`,tag:'warn',tagLabel:'Correlación',dot:'purple'});
+      }
+    }
+  }
+
+  // Recomendación de ejercicio si PA elevada y sin dx cardíaco
+  if(lastPA&&lastPA.sis>=130&&!(p.dx||'').toLowerCase().includes('insuf')){
+    recs.push({icon:'🏃',title:'Actividad física aeróbica regular',desc:'30 min de caminata rápida 5 días/semana puede reducir la PA sistólica hasta 7 mmHg. Iniciar de forma progresiva.',tag:'info',tagLabel:'Estilo de vida',dot:'blue'});
+  }
+
+  // Medicación presente + PA sigue alta
+  if(lastPA&&lastPA.sis>=140&&p.med&&p.med.toLowerCase()!=='ninguna'){
+    recs.push({icon:'💊',title:'Revisar adherencia y eficacia del tratamiento',desc:`Paciente con medicación (${p.med}) y PA persistentemente alta. Verifica adherencia, horario de toma y posibles interacciones.`,tag:'urgent',tagLabel:'Medicación',dot:'red'});
+  }
+
+  return recs;
+}
+
+// Recomendaciones globales del panel general
+function genRecsGlobal(){
+  const recs=[];
+  const conPA=db.patients.filter(p=>p.pa.length>0);
+  const enCrisis=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>180||l.dia>120);});
+  const enHTA2=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=140||l.dia>=90)&&!(l.sis>180||l.dia>120);});
+  const enHTA1=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=130&&l.sis<140||l.dia>=80&&l.dia<90);});
+  const sinDatos=db.patients.filter(p=>p.pa.length===0);
+  const sinSueno=db.patients.filter(p=>p.sueno.length===0);
+
+  // Sueño promedio global
+  const conSueno=db.patients.filter(p=>p.sueno.length>0);
+  let avgSuenoGlobal=0;
+  if(conSueno.length>0){
+    avgSuenoGlobal=conSueno.reduce((a,p)=>{
+      const ul=p.sueno.at(-1);return a+calcH(ul.dormir,ul.despertar);
+    },0)/conSueno.length;
+  }
+
+  if(enCrisis.length>0){
+    recs.push({icon:'🚨',title:`${enCrisis.length} paciente(s) en crisis hipertensiva`,desc:`${enCrisis.map(p=>p.nombre.split(' ')[0]).join(', ')} tienen PA >180/120 mmHg. Requieren atención urgente e inmediata.`,tag:'urgent',tagLabel:'Urgente'});
+  }
+  if(enHTA2.length>0){
+    recs.push({icon:'⚠️',title:`${enHTA2.length} paciente(s) con HTA grado 2`,desc:`${enHTA2.map(p=>p.nombre.split(' ')[0]).join(', ')} presentan PA ≥140/90 mmHg. Revisar esquema de medicación y citar en los próximos 7 días.`,tag:'urgent',tagLabel:'Prioritario'});
+  }
+  if(enHTA1.length>0){
+    recs.push({icon:'📈',title:`${enHTA1.length} paciente(s) con presión elevada`,desc:`${enHTA1.map(p=>p.nombre.split(' ')[0]).join(', ')} en HTA grado 1. Reforzar cambios en estilo de vida y seguimiento quincenal.`,tag:'warn',tagLabel:'Seguimiento'});
+  }
+  if(sinDatos.length>0){
+    recs.push({icon:'📋',title:`${sinDatos.length} paciente(s) sin medición de PA`,desc:`${sinDatos.map(p=>p.nombre.split(' ')[0]).join(', ')} aún no tienen registro. Completar línea base para seguimiento adecuado.`,tag:'info',tagLabel:'Pendiente'});
+  }
+  if(sinSueno.length>0){
+    recs.push({icon:'🌙',title:`${sinSueno.length} paciente(s) sin registro de sueño`,desc:`Registrar el sueño es clave para identificar correlaciones con PA. Solicita el historial a ${sinSueno.map(p=>p.nombre.split(' ')[0]).join(', ')}.`,tag:'info',tagLabel:'Pendiente'});
+  }
+  if(avgSuenoGlobal>0&&avgSuenoGlobal<6.5){
+    recs.push({icon:'💤',title:'Promedio de sueño del grupo es bajo',desc:`El promedio de sueño es ${Math.round(avgSuenoGlobal*10)/10}h. Considera incluir educación sobre higiene del sueño en las consultas del grupo.`,tag:'warn',tagLabel:'Grupo'});
+  }
+  if(recs.length===0){
+    recs.push({icon:'✅',title:'Todos los pacientes en rango aceptable',desc:'No hay alertas críticas en el grupo. Mantener frecuencia de monitoreo y citas de seguimiento.',tag:'ok',tagLabel:'Bien'});
+  }
+  return recs;
+}
+
+function renderRecCards(recs){
+  if(!recs.length)return'';
+  const tagClass={urgent:'tag-urgent',warn:'tag-warn',info:'tag-info',ok:'tag-ok'};
+  return recs.map(r=>`
+    <div class="rec-card">
+      <div class="rec-icon">${r.icon}</div>
+      <div class="rec-body">
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-desc">${r.desc}</div>
+        <span class="rec-tag ${tagClass[r.tag]||'tag-info'}">${r.tagLabel}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderRecPatientList(recs){
+  if(!recs.length)return'<div class="no-data">Sin recomendaciones disponibles aún.</div>';
+  const dotClass={red:'dot-red',orange:'dot-orange',blue:'dot-blue',green:'dot-green',purple:'dot-purple'};
+  return`<div class="rec-list">${recs.map(r=>`
+    <div class="rec-item">
+      <div class="rec-item-dot ${dotClass[r.dot]||'dot-blue'}"></div>
+      <div class="rec-item-text"><strong>${r.title}.</strong> ${r.desc}</div>
+    </div>
+  `).join('')}</div>`;
+}
+
+// ════════════════════════════════
 //  CLOCK
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 function tick(){
   const n=new Date();
   const s=n.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'})+'\n'+n.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
@@ -404,9 +578,9 @@ function tick(){
 }
 tick();setInterval(tick,1000);
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  SIDEBAR
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 function filterPatients(q){renderSidebar(q);}
 
 function renderSidebar(q=''){
@@ -415,18 +589,20 @@ function renderSidebar(q=''){
   const filtered=db.patients.filter(p=>p.nombre.toLowerCase().includes(search)||p.exp.toLowerCase().includes(search));
   document.getElementById('count-label').textContent=db.patients.length;
 
-  if(filtered.length===0){
-    list.innerHTML=`<div class="no-data">Sin resultados</div>`;
-    return;
+  const ovBtn=document.getElementById('nav-overview-btn');
+  if(ovBtn){
+    if(activePatientId===null)ovBtn.classList.add('active');
+    else ovBtn.classList.remove('active');
   }
 
+  if(filtered.length===0){list.innerHTML=`<div class="no-data">Sin resultados</div>`;return;}
   list.innerHTML=filtered.map(p=>{
     const lastPA=p.pa.at(-1);
     const badgeHTML=lastPA
-      ? `<span class="pa-badge ${clsPA(lastPA.sis,lastPA.dia).cls}">${lastPA.sis}/${lastPA.dia}</span>`
-      : `<span class="pa-badge badge-gray">—</span>`;
+      ?`<span class="pa-badge ${clsPA(lastPA.sis,lastPA.dia).cls}">${lastPA.sis}/${lastPA.dia}</span>`
+      :`<span class="pa-badge badge-gray">—</span>`;
     const isActive=p.id===activePatientId;
-    return `<div class="patient-item${isActive?' active':''}" onclick="selectPatient(${p.id})">
+    return`<div class="patient-item${isActive?' active':''}" onclick="selectPatient(${p.id})">
       <div class="avatar" style="background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
       <div class="patient-info">
         <div class="patient-name">${p.nombre}</div>
@@ -437,9 +613,16 @@ function renderSidebar(q=''){
   }).join('');
 }
 
-// ════════════════════════════════════════════════════════
-//  OVERVIEW (sin paciente seleccionado)
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
+//  OVERVIEW
+// ════════════════════════════════
+function goOverview(){
+  activePatientId=null;
+  activeSubTab='perfil';
+  renderSidebar(document.getElementById('search-input').value);
+  renderOverview();
+}
+
 function renderOverview(){
   document.getElementById('topbar-overview').style.display='flex';
   document.getElementById('topbar-patient').style.display='none';
@@ -452,22 +635,15 @@ function renderOverview(){
   const enCrisis=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=140||l.dia>=90);});
 
   let alertsHtml='';
-  if(enCrisis.length>0){
-    alertsHtml+=`<div class="alert alert-danger">🚨 <div><strong>${enCrisis.length} paciente(s) con hipertensión grado 2 o superior:</strong> ${enCrisis.map(p=>p.nombre).join(', ')}. Se recomienda atención prioritaria.</div></div>`;
-  }
-  if(enAlerta.length > enCrisis.length){
-    const mod=enAlerta.filter(p=>!enCrisis.includes(p));
-    if(mod.length>0)alertsHtml+=`<div class="alert alert-warn">⚠️ <div><strong>${mod.length} paciente(s) con presión elevada:</strong> ${mod.map(p=>p.nombre).join(', ')}.</div></div>`;
-  }
+  if(enCrisis.length>0)alertsHtml+=`<div class="alert alert-danger">🚨 <div><strong>${enCrisis.length} paciente(s) con hipertensión grado 2 o superior:</strong> ${enCrisis.map(p=>p.nombre).join(', ')}. Se recomienda atención prioritaria.</div></div>`;
+  if(enAlerta.length>enCrisis.length){const mod=enAlerta.filter(p=>!enCrisis.includes(p));if(mod.length>0)alertsHtml+=`<div class="alert alert-warn">⚠️ <div><strong>${mod.length} paciente(s) con presión elevada:</strong> ${mod.map(p=>p.nombre).join(', ')}.</div></div>`;}
 
-  // Tabla resumen
   const rows=db.patients.map(p=>{
-    const lPA=p.pa.at(-1);
-    const lS=p.sueno.at(-1);
+    const lPA=p.pa.at(-1);const lS=p.sueno.at(-1);
     const h=lS?calcH(lS.dormir,lS.despertar):null;
     const c=lPA?clsPA(lPA.sis,lPA.dia):{label:'—',cls:'badge-gray',emoji:''};
     const cs=h?clsH(h):{label:'—',cls:'badge-gray'};
-    return `<tr style="cursor:pointer" onclick="selectPatient(${p.id})">
+    return`<tr style="cursor:pointer" onclick="selectPatient(${p.id})">
       <td><div style="display:flex;align-items:center;gap:.6rem">
         <div class="avatar" style="width:28px;height:28px;font-size:.65rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
         <div><div style="font-weight:500;font-size:.82rem">${p.nombre}</div><div style="font-size:.7rem;color:var(--muted)">${p.exp}</div></div>
@@ -483,6 +659,41 @@ function renderOverview(){
     </tr>`;
   }).join('');
 
+  // Recomendaciones globales
+  const recsGlobal=genRecsGlobal();
+  const recGlobalHtml=`
+    <div class="rec-section">
+      <div class="rec-section-title">🧠 Recomendaciones generales del grupo</div>
+      <div class="rec-grid">${renderRecCards(recsGlobal)}</div>
+    </div>
+  `;
+
+  // Recomendaciones por paciente individuales en overview
+  const recsPorPaciente=db.patients.map(p=>{
+    const recs=genRecsPatient(p);
+    const tagClass={urgent:'tag-urgent',warn:'tag-warn',info:'tag-info',ok:'tag-ok'};
+    const items=recs.slice(0,3).map(r=>`
+      <div class="rec-item">
+        <div class="rec-item-dot dot-${r.dot}"></div>
+        <div class="rec-item-text"><strong>${r.title}:</strong> ${r.desc.length>100?r.desc.slice(0,97)+'...':r.desc}</div>
+      </div>
+    `).join('');
+    const hasCrit=recs.some(r=>r.tag==='urgent');
+    const hasWarn=recs.some(r=>r.tag==='warn');
+    const borderColor=hasCrit?'rgba(255,107,107,.25)':hasWarn?'rgba(255,169,77,.2)':'rgba(255,255,255,.06)';
+    return`<div style="background:var(--s1);border:1px solid ${borderColor};border-radius:var(--r2);padding:1rem 1.2rem;cursor:pointer;transition:border-color .2s" onclick="selectPatient(${p.id})">
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem">
+        <div class="avatar" style="width:30px;height:30px;font-size:.7rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
+        <div>
+          <div style="font-size:.82rem;font-weight:500">${p.nombre}</div>
+          <div style="font-size:.7rem;color:var(--muted)">${p.exp} · Haz clic para ver detalle</div>
+        </div>
+        ${hasCrit?'<span class="rec-tag tag-urgent" style="margin-left:auto">Urgente</span>':hasWarn?'<span class="rec-tag tag-warn" style="margin-left:auto">Atención</span>':'<span class="rec-tag tag-ok" style="margin-left:auto">OK</span>'}
+      </div>
+      <div class="rec-list">${items}</div>
+    </div>`;
+  }).join('');
+
   document.getElementById('main-content').innerHTML=`
     ${alertsHtml}
     <div class="overview-grid">
@@ -493,8 +704,15 @@ function renderOverview(){
       <div class="ov-card"><div class="ov-num" style="color:var(--orange)">${enAlerta.length-enCrisis.length}</div><div class="ov-lbl">Presión elevada</div></div>
     </div>
 
+    ${recGlobalHtml}
+
+    <div class="rec-section">
+      <div class="rec-section-title">👤 Resumen de alertas por paciente</div>
+      <div class="rec-grid">${recsPorPaciente||'<div class="no-data">Agrega pacientes para comenzar</div>'}</div>
+    </div>
+
     <div class="chart-card">
-      <h3>Todos los pacientes — resumen</h3>
+      <h3>Todos los pacientes — resumen clínico</h3>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Paciente</th><th>Edad/Sexo</th><th>PA (mmHg)</th><th>Pulso</th><th>Estado PA</th><th>Sueño</th><th>Calidad</th><th>Estado sueño</th><th>Última medición</th></tr></thead>
@@ -504,18 +722,11 @@ function renderOverview(){
     </div>
 
     <div class="two-col">
-      <div class="chart-card">
-        <h3>Distribución PA sistólica</h3>
-        <div class="chart-wrap"><canvas id="ov-chart-pa"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Sueño promedio por paciente</h3>
-        <div class="chart-wrap"><canvas id="ov-chart-sueno"></canvas></div>
-      </div>
+      <div class="chart-card"><h3>Distribución PA sistólica</h3><div class="chart-wrap"><canvas id="ov-chart-pa"></canvas></div></div>
+      <div class="chart-card"><h3>Sueño promedio por paciente</h3><div class="chart-wrap"><canvas id="ov-chart-sueno"></canvas></div></div>
     </div>
   `;
 
-  // Charts overview
   const names=db.patients.map(p=>p.nombre.split(' ')[0]);
   const sisCurrent=db.patients.map(p=>p.pa.at(-1)?.sis||0);
   const colorsPA=sisCurrent.map(s=>s>=140?'#ff6b6b':s>=130?'#ffa94d':s>=120?'#fde68a':'#69db7c');
@@ -527,9 +738,9 @@ function renderOverview(){
 
   setTimeout(()=>{
     const ctx1=document.getElementById('ov-chart-pa')?.getContext('2d');
-    if(ctx1) chartInstances['ov-pa']=new Chart(ctx1,{type:'bar',data:{labels:names,datasets:[{data:sisCurrent,backgroundColor:colorsPA,borderRadius:6,borderSkipped:false}]},options:barOpts('mmHg')});
+    if(ctx1)chartInstances['ov-pa']=new Chart(ctx1,{type:'bar',data:{labels:names,datasets:[{data:sisCurrent,backgroundColor:colorsPA,borderRadius:6,borderSkipped:false}]},options:barOpts('mmHg')});
     const ctx2=document.getElementById('ov-chart-sueno')?.getContext('2d');
-    if(ctx2) chartInstances['ov-su']=new Chart(ctx2,{type:'bar',data:{labels:names,datasets:[{data:avgSueno,backgroundColor:colorsSueno,borderRadius:6,borderSkipped:false}]},options:barOpts('horas')});
+    if(ctx2)chartInstances['ov-su']=new Chart(ctx2,{type:'bar',data:{labels:names,datasets:[{data:avgSueno,backgroundColor:colorsSueno,borderRadius:6,borderSkipped:false}]},options:barOpts('horas')});
   },50);
 }
 
@@ -537,9 +748,9 @@ function barOpts(unit){
   return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`${i.raw} ${unit}`}}},scales:{x:{ticks:{color:'#7d8590',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7d8590',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}};
 }
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  SELECCIONAR PACIENTE
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 function selectPatient(id){
   activePatientId=id;
   activeSubTab='perfil';
@@ -550,8 +761,7 @@ function selectPatient(id){
 function getPatient(){return db.patients.find(p=>p.id===activePatientId);}
 
 function renderPatient(){
-  const p=getPatient();
-  if(!p)return;
+  const p=getPatient();if(!p)return;
   document.getElementById('topbar-overview').style.display='none';
   document.getElementById('topbar-patient').style.display='flex';
   document.getElementById('topbar-name').textContent=p.nombre;
@@ -564,14 +774,19 @@ function renderPatient(){
   const h=lastS?calcH(lastS.dormir,lastS.despertar):null;
   const cs=h?clsH(h):{label:'Sin datos',cls:'badge-gray'};
 
-  // Alertas del paciente
   let alerts='';
-  if(lastPA&&(lastPA.sis>=140||lastPA.dia>=90))
-    alerts+=`<div class="alert alert-danger">🚨 Última PA: <strong>${lastPA.sis}/${lastPA.dia} mmHg</strong> — Hipertensión. Evalúa urgentemente.</div>`;
-  else if(lastPA&&(lastPA.sis>=130||lastPA.dia>=80))
-    alerts+=`<div class="alert alert-warn">⚠️ Presión ligeramente elevada (${lastPA.sis}/${lastPA.dia} mmHg). Monitoreo frecuente.</div>`;
-  if(h&&h<6)
-    alerts+=`<div class="alert alert-warn">🌙 Sueño insuficiente anoche: <strong>${h}h</strong>. El sueño corto puede elevar la PA.</div>`;
+  if(lastPA&&(lastPA.sis>=140||lastPA.dia>=90))alerts+=`<div class="alert alert-danger">🚨 Última PA: <strong>${lastPA.sis}/${lastPA.dia} mmHg</strong> — Hipertensión. Evalúa urgentemente.</div>`;
+  else if(lastPA&&(lastPA.sis>=130||lastPA.dia>=80))alerts+=`<div class="alert alert-warn">⚠️ Presión ligeramente elevada (${lastPA.sis}/${lastPA.dia} mmHg). Monitoreo frecuente.</div>`;
+  if(h&&h<6)alerts+=`<div class="alert alert-warn">🌙 Sueño insuficiente anoche: <strong>${h}h</strong>. El sueño corto puede elevar la PA.</div>`;
+
+  // Recomendaciones del paciente
+  const recsP=genRecsPatient(p);
+  const recHtml=`
+    <div class="rec-patient-block">
+      <div class="rec-patient-header"><span>🧠 Recomendaciones personalizadas para ${p.nombre.split(' ')[0]}</span></div>
+      ${renderRecPatientList(recsP)}
+    </div>
+  `;
 
   const subTabContent={
     perfil:`
@@ -588,6 +803,7 @@ function renderPatient(){
         <div class="chart-card"><h3>Presión arterial — últimos registros</h3><div class="chart-wrap"><canvas id="ch-pa"></canvas></div></div>
         <div class="chart-card"><h3>Sueño — últimos registros</h3><div class="chart-wrap"><canvas id="ch-su"></canvas></div></div>
       </div>
+      ${recHtml}
       <div class="form-card">
         <h3>Datos del paciente</h3>
         <div class="form-grid">
@@ -607,9 +823,15 @@ function renderPatient(){
         </div>
       </div>
     `,
-    pa: renderTabPA(p),
-    sueno: renderTabSueno(p),
-    correlacion: renderTabCorr(p),
+    pa:renderTabPA(p),
+    sueno:renderTabSueno(p),
+    correlacion:renderTabCorr(p),
+    recomendaciones:`
+      <div class="rec-section">
+        <div class="rec-section-title">🧠 Recomendaciones clínicas para ${p.nombre.split(' ')[0]}</div>
+        <div class="rec-grid">${renderRecCards(recsP)}</div>
+      </div>
+    `,
   };
 
   document.getElementById('main-content').innerHTML=`
@@ -629,6 +851,7 @@ function renderPatient(){
       <button class="sub-tab ${activeSubTab==='pa'?'active':''}" onclick="switchSubTab('pa')">Presión arterial</button>
       <button class="sub-tab ${activeSubTab==='sueno'?'active':''}" onclick="switchSubTab('sueno')">Sueño</button>
       <button class="sub-tab ${activeSubTab==='correlacion'?'active':''}" onclick="switchSubTab('correlacion')">Correlación</button>
+      <button class="sub-tab ${activeSubTab==='recomendaciones'?'active':''}" onclick="switchSubTab('recomendaciones')">🧠 Recomendaciones</button>
     </div>
     <div id="subtab-content">${subTabContent[activeSubTab]||''}</div>
   `;
@@ -636,35 +859,20 @@ function renderPatient(){
   setTimeout(()=>drawPatientCharts(p),60);
 }
 
-function switchSubTab(t){
-  activeSubTab=t;
-  renderPatient();
-}
+function switchSubTab(t){activeSubTab=t;renderPatient();}
 
-// ════════════════════════════════════════════════════════
-//  SUB-TABS CONTENT
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
+//  SUB-TABS PACIENTE
+// ════════════════════════════════
 function renderTabPA(p){
   if(!p.pa.length)return`<div class="no-data">Este paciente aún no tiene mediciones de presión arterial.<br><button class="btn-primary" style="margin-top:.75rem" onclick="openModalPA()">➕ Agregar primera medición</button></div>`;
-  const rows=[...p.pa].reverse().map(r=>{
-    const c=clsPA(r.sis,r.dia);
-    return`<tr><td>${r.fecha} ${r.hora}</td><td><strong>${r.sis}</strong></td><td><strong>${r.dia}</strong></td><td>${r.pulso}</td><td>${r.contexto}</td><td>${r.brazo}</td><td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;
-  }).join('');
+  const rows=[...p.pa].reverse().map(r=>{const c=clsPA(r.sis,r.dia);return`<tr><td>${r.fecha} ${r.hora}</td><td><strong>${r.sis}</strong></td><td><strong>${r.dia}</strong></td><td>${r.pulso}</td><td>${r.contexto}</td><td>${r.brazo}</td><td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;}).join('');
   const avg=Math.round(p.pa.reduce((a,r)=>a+r.sis,0)/p.pa.length);
   const max=Math.max(...p.pa.map(r=>r.sis));
   const min=Math.min(...p.pa.map(r=>r.sis));
-  return`
-    <div class="cards-row">
-      <div class="card"><div class="card-label">Promedio sistólica</div><div class="card-val" style="color:var(--red)">${avg}</div><div class="card-unit">mmHg</div></div>
-      <div class="card"><div class="card-label">Máxima sistólica</div><div class="card-val" style="color:var(--orange)">${max}</div><div class="card-unit">mmHg</div></div>
-      <div class="card"><div class="card-label">Mínima sistólica</div><div class="card-val" style="color:var(--green)">${min}</div><div class="card-unit">mmHg</div></div>
-      <div class="card"><div class="card-label">Total mediciones</div><div class="card-val" style="color:var(--blue)">${p.pa.length}</div></div>
-    </div>
+  return`<div class="cards-row"><div class="card"><div class="card-label">Promedio sistólica</div><div class="card-val" style="color:var(--red)">${avg}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Máxima sistólica</div><div class="card-val" style="color:var(--orange)">${max}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Mínima sistólica</div><div class="card-val" style="color:var(--green)">${min}</div><div class="card-unit">mmHg</div></div><div class="card"><div class="card-label">Total mediciones</div><div class="card-val" style="color:var(--blue)">${p.pa.length}</div></div></div>
     <div class="chart-card"><h3>Tendencia presión arterial</h3><div class="chart-wrap" style="height:220px"><canvas id="ch-pa-full"></canvas></div></div>
-    <div class="chart-card"><h3>Historial de mediciones</h3>
-      <div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalPA()">➕ Nueva medición</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Fecha/Hora</th><th>Sistólica</th><th>Diastólica</th><th>Pulso</th><th>Contexto</th><th>Brazo</th><th>Estado</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div>
-    </div>`;
+    <div class="chart-card"><h3>Historial de mediciones</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalPA()">➕ Nueva medición</button></div><div class="table-wrap"><table><thead><tr><th>Fecha/Hora</th><th>Sistólica</th><th>Diastólica</th><th>Pulso</th><th>Contexto</th><th>Brazo</th><th>Estado</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function renderTabSueno(p){
@@ -672,240 +880,117 @@ function renderTabSueno(p){
   const avgH=Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
   const avgCal=Math.round(p.sueno.reduce((a,r)=>a+(+r.cal),0)/p.sueno.length*10)/10;
   const avgEst=Math.round(p.sueno.reduce((a,r)=>a+r.estres,0)/p.sueno.length*10)/10;
-  const rows=[...p.sueno].reverse().map(r=>{
-    const h=calcH(r.dormir,r.despertar);
-    const c=clsH(h);
-    return`<tr><td>${r.fecha}</td><td><span class="status-pill ${c.cls}">${h}h</span></td><td>${r.dormir}</td><td>${r.despertar}</td><td>${stars(r.cal)}</td><td>${r.estres}/10</td><td>${r.caf} ☕</td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;
-  }).join('');
-  return`
-    <div class="cards-row">
-      <div class="card"><div class="card-label">Promedio horas</div><div class="card-val" style="color:var(--purple)">${avgH}</div><div class="card-unit">horas/noche</div></div>
-      <div class="card"><div class="card-label">Calidad promedio</div><div class="card-val" style="color:var(--yellow)">${avgCal}</div><div class="card-unit">/ 5</div></div>
-      <div class="card"><div class="card-label">Estrés promedio</div><div class="card-val" style="color:var(--orange)">${avgEst}</div><div class="card-unit">/ 10</div></div>
-      <div class="card"><div class="card-label">Total registros</div><div class="card-val" style="color:var(--teal)">${p.sueno.length}</div></div>
-    </div>
+  const rows=[...p.sueno].reverse().map(r=>{const h=calcH(r.dormir,r.despertar);const c=clsH(h);return`<tr><td>${r.fecha}</td><td><span class="status-pill ${c.cls}">${h}h</span></td><td>${r.dormir}</td><td>${r.despertar}</td><td>${stars(r.cal)}</td><td>${r.estres}/10</td><td>${r.caf} ☕</td><td style="color:var(--muted);font-size:.75rem">${r.notas}</td></tr>`;}).join('');
+  return`<div class="cards-row"><div class="card"><div class="card-label">Promedio horas</div><div class="card-val" style="color:var(--purple)">${avgH}</div><div class="card-unit">horas/noche</div></div><div class="card"><div class="card-label">Calidad promedio</div><div class="card-val" style="color:var(--yellow)">${avgCal}</div><div class="card-unit">/ 5</div></div><div class="card"><div class="card-label">Estrés promedio</div><div class="card-val" style="color:var(--orange)">${avgEst}</div><div class="card-unit">/ 10</div></div><div class="card"><div class="card-label">Total registros</div><div class="card-val" style="color:var(--teal)">${p.sueno.length}</div></div></div>
     <div class="chart-card"><h3>Horas de sueño por noche</h3><div class="chart-wrap" style="height:200px"><canvas id="ch-su-full"></canvas></div></div>
-    <div class="chart-card"><h3>Historial de sueño</h3>
-      <div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalSueno()">🌙 Nueva noche</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Duración</th><th>Acostarse</th><th>Despertar</th><th>Calidad</th><th>Estrés</th><th>Cafeína</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div>
-    </div>`;
+    <div class="chart-card"><h3>Historial de sueño</h3><div style="text-align:right;margin-bottom:.6rem"><button class="btn-sec" style="font-size:.75rem;padding:.35rem .7rem" onclick="openModalSueno()">🌙 Nueva noche</button></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Duración</th><th>Acostarse</th><th>Despertar</th><th>Calidad</th><th>Estrés</th><th>Cafeína</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function renderTabCorr(p){
   const n=Math.min(p.pa.length,p.sueno.length);
   if(n<2)return`<div class="no-data">Se necesitan al menos 2 registros de PA y sueño para mostrar correlación.</div>`;
-  return`
-    <div class="alert alert-info">ℹ️ <div>El sueño insuficiente (&lt;6h) puede elevar la presión sistólica 5–15 mmHg. Revisa si existe patrón en este paciente.</div></div>
-    <div class="two-col">
-      <div class="chart-card"><h3>Sueño vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr1"></canvas></div></div>
-      <div class="chart-card"><h3>Estrés vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr2"></canvas></div></div>
-    </div>
-    <div class="chart-card"><h3>Tendencia combinada (sueño + PA)</h3><div class="chart-wrap" style="height:240px"><canvas id="ch-dual"></canvas></div></div>
-  `;
+  return`<div class="alert alert-info">ℹ️ <div>El sueño insuficiente (&lt;6h) puede elevar la presión sistólica 5–15 mmHg. Revisa si existe patrón en este paciente.</div></div>
+    <div class="two-col"><div class="chart-card"><h3>Sueño vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr1"></canvas></div></div><div class="chart-card"><h3>Estrés vs. Sistólica</h3><div class="chart-wrap"><canvas id="ch-corr2"></canvas></div></div></div>
+    <div class="chart-card"><h3>Tendencia combinada (sueño + PA)</h3><div class="chart-wrap" style="height:240px"><canvas id="ch-dual"></canvas></div></div>`;
 }
 
-// ════════════════════════════════════════════════════════
-//  CHARTS DEL PACIENTE
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
+//  CHARTS PACIENTE
+// ════════════════════════════════
 function drawPatientCharts(p){
   const labels7=p.pa.slice(-7).map(r=>r.fecha.slice(5));
   const sis7=p.pa.slice(-7).map(r=>r.sis);
   const dia7=p.pa.slice(-7).map(r=>r.dia);
   const su7=p.sueno.slice(-7);
 
-  const lineOpts=(yl,yr)=>({
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#7d8590',font:{size:10},boxWidth:10}}},
-    scales:{
-      x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},
-      [yl||'y']:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},
-      ...(yr?{[yr]:{position:'right',ticks:{color:'#7d8590',font:{size:9}},grid:{display:false}}}:{}),
-    },
-    interaction:{intersect:false,mode:'index'}
-  });
+  const lineOpts=(yl,yr)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7d8590',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},[yl||'y']:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}}, ...(yr?{[yr]:{position:'right',ticks:{color:'#7d8590',font:{size:9}},grid:{display:false}}}:{})},interaction:{intersect:false,mode:'index'}});
 
-  // Resumen PA mini
   const c1=document.getElementById('ch-pa')?.getContext('2d');
-  if(c1&&p.pa.length>0){
-    chartInstances['ch-pa']=new Chart(c1,{type:'line',data:{labels:labels7,datasets:[
-      {label:'Sistólica',data:sis7,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#ff6b6b'},
-      {label:'Diastólica',data:dia7,borderColor:'#74c0fc',backgroundColor:'rgba(116,192,252,.05)',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#74c0fc'},
-    ]},options:lineOpts()});
-  }
+  if(c1&&p.pa.length>0)chartInstances['ch-pa']=new Chart(c1,{type:'line',data:{labels:labels7,datasets:[{label:'Sistólica',data:sis7,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#ff6b6b'},{label:'Diastólica',data:dia7,borderColor:'#74c0fc',backgroundColor:'rgba(116,192,252,.05)',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#74c0fc'}]},options:lineOpts()});
 
-  // Resumen sueño mini
   const c2=document.getElementById('ch-su')?.getContext('2d');
-  if(c2&&su7.length>0){
-    const horas=su7.map(r=>calcH(r.dormir,r.despertar));
-    chartInstances['ch-su']=new Chart(c2,{type:'bar',data:{labels:su7.map(r=>r.fecha.slice(5)),datasets:[{data:horas,backgroundColor:horas.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});
-  }
+  if(c2&&su7.length>0){const horas=su7.map(r=>calcH(r.dormir,r.despertar));chartInstances['ch-su']=new Chart(c2,{type:'bar',data:{labels:su7.map(r=>r.fecha.slice(5)),datasets:[{data:horas,backgroundColor:horas.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});}
 
-  // Tab PA full
   const c3=document.getElementById('ch-pa-full')?.getContext('2d');
-  if(c3&&p.pa.length>0){
-    chartInstances['ch-pa-f']=new Chart(c3,{type:'line',data:{labels:p.pa.map(r=>r.fecha.slice(5)),datasets:[
-      {label:'Sistólica',data:p.pa.map(r=>r.sis),borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#ff6b6b'},
-      {label:'Diastólica',data:p.pa.map(r=>r.dia),borderColor:'#74c0fc',fill:false,tension:.4,pointRadius:4,pointBackgroundColor:'#74c0fc'},
-      {label:'Pulso',data:p.pa.map(r=>r.pulso),borderColor:'#34d399',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#34d399',borderDash:[4,3]},
-    ]},options:lineOpts()});
-  }
+  if(c3&&p.pa.length>0)chartInstances['ch-pa-f']=new Chart(c3,{type:'line',data:{labels:p.pa.map(r=>r.fecha.slice(5)),datasets:[{label:'Sistólica',data:p.pa.map(r=>r.sis),borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#ff6b6b'},{label:'Diastólica',data:p.pa.map(r=>r.dia),borderColor:'#74c0fc',fill:false,tension:.4,pointRadius:4,pointBackgroundColor:'#74c0fc'},{label:'Pulso',data:p.pa.map(r=>r.pulso),borderColor:'#34d399',fill:false,tension:.4,pointRadius:3,pointBackgroundColor:'#34d399',borderDash:[4,3]}]},options:lineOpts()});
 
-  // Tab sueño full
   const c4=document.getElementById('ch-su-full')?.getContext('2d');
-  if(c4&&p.sueno.length>0){
-    const hs=p.sueno.map(r=>calcH(r.dormir,r.despertar));
-    chartInstances['ch-su-f']=new Chart(c4,{type:'bar',data:{labels:p.sueno.map(r=>r.fecha.slice(5)),datasets:[{data:hs,backgroundColor:hs.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});
-  }
+  if(c4&&p.sueno.length>0){const hs=p.sueno.map(r=>calcH(r.dormir,r.despertar));chartInstances['ch-su-f']=new Chart(c4,{type:'bar',data:{labels:p.sueno.map(r=>r.fecha.slice(5)),datasets:[{data:hs,backgroundColor:hs.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b'),borderRadius:5,borderSkipped:false}]},options:{...lineOpts(),plugins:{legend:{display:false}}}});}
 
-  // Correlaciones
   const n=Math.min(p.pa.length,p.sueno.length);
   if(n>=2){
     const corrData=Array.from({length:n},(_,i)=>({x:calcH(p.sueno[i].dormir,p.sueno[i].despertar),y:p.pa[i].sis}));
     const corrData2=Array.from({length:n},(_,i)=>({x:p.sueno[i].estres,y:p.pa[i].sis}));
     const scatterOpts=(xl,yl)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:xl,color:'#7d8590',font:{size:10}},ticks:{color:'#7d8590'},grid:{color:'rgba(255,255,255,.03)'}},y:{title:{display:true,text:yl,color:'#7d8590',font:{size:10}},ticks:{color:'#7d8590'},grid:{color:'rgba(255,255,255,.03)'}}}});
-
     const c5=document.getElementById('ch-corr1')?.getContext('2d');
-    if(c5) chartInstances['corr1']=new Chart(c5,{type:'scatter',data:{datasets:[{data:corrData,backgroundColor:'#c084fc',pointRadius:6}]},options:scatterOpts('Horas sueño','Sistólica mmHg')});
-
+    if(c5)chartInstances['corr1']=new Chart(c5,{type:'scatter',data:{datasets:[{data:corrData,backgroundColor:'#c084fc',pointRadius:6}]},options:scatterOpts('Horas sueño','Sistólica mmHg')});
     const c6=document.getElementById('ch-corr2')?.getContext('2d');
-    if(c6) chartInstances['corr2']=new Chart(c6,{type:'scatter',data:{datasets:[{data:corrData2,backgroundColor:'#ff6b6b',pointRadius:6}]},options:scatterOpts('Estrés (1–10)','Sistólica mmHg')});
-
+    if(c6)chartInstances['corr2']=new Chart(c6,{type:'scatter',data:{datasets:[{data:corrData2,backgroundColor:'#ff6b6b',pointRadius:6}]},options:scatterOpts('Estrés (1–10)','Sistólica mmHg')});
     const c7=document.getElementById('ch-dual')?.getContext('2d');
-    if(c7){
-      const dualLabels=p.pa.slice(-n).map(r=>r.fecha.slice(5));
-      const dualH=p.sueno.slice(-n).map(r=>calcH(r.dormir,r.despertar));
-      const dualSis=p.pa.slice(-n).map(r=>r.sis);
-      chartInstances['dual']=new Chart(c7,{type:'line',data:{labels:dualLabels,datasets:[
-        {label:'Sueño (h)',data:dualH,borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:4,yAxisID:'yS'},
-        {label:'Sistólica',data:dualSis,borderColor:'#ff6b6b',fill:false,tension:.4,pointRadius:4,yAxisID:'yPA'},
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#7d8590',font:{size:10}}}},scales:{x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},yS:{position:'left',title:{display:true,text:'Horas sueño',color:'#c084fc',font:{size:9}},ticks:{color:'#c084fc'},grid:{display:false}},yPA:{position:'right',title:{display:true,text:'Sistólica mmHg',color:'#ff6b6b',font:{size:9}},ticks:{color:'#ff6b6b'},grid:{color:'rgba(255,255,255,.03)'}}}}});
-    }
+    if(c7){const dualLabels=p.pa.slice(-n).map(r=>r.fecha.slice(5));const dualH=p.sueno.slice(-n).map(r=>calcH(r.dormir,r.despertar));const dualSis=p.pa.slice(-n).map(r=>r.sis);chartInstances['dual']=new Chart(c7,{type:'line',data:{labels:dualLabels,datasets:[{label:'Sueño (h)',data:dualH,borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:4,yAxisID:'yS'},{label:'Sistólica',data:dualSis,borderColor:'#ff6b6b',fill:false,tension:.4,pointRadius:4,yAxisID:'yPA'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#7d8590',font:{size:10}}}},scales:{x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},yS:{position:'left',title:{display:true,text:'Horas sueño',color:'#c084fc',font:{size:9}},ticks:{color:'#c084fc'},grid:{display:false}},yPA:{position:'right',title:{display:true,text:'Sistólica mmHg',color:'#ff6b6b',font:{size:9}},ticks:{color:'#ff6b6b'},grid:{color:'rgba(255,255,255,.03)'}}}}});}
   }
 }
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  MODALES
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 function openAddModal(){document.getElementById('modal-add').style.display='flex';}
-function openModalPA(){
-  document.getElementById('pa-fecha').value=today();
-  document.getElementById('pa-hora').value=nowTime();
-  document.getElementById('modal-pa').style.display='flex';
-}
-function openModalSueno(){
-  document.getElementById('su-fecha').value=today();
-  document.getElementById('modal-sueno').style.display='flex';
-}
+function openModalPA(){document.getElementById('pa-fecha').value=today();document.getElementById('pa-hora').value=nowTime();document.getElementById('modal-pa').style.display='flex';}
+function openModalSueno(){document.getElementById('su-fecha').value=today();document.getElementById('modal-sueno').style.display='flex';}
 function closeModal(id){document.getElementById(id).style.display='none';}
 function closeModalIfBg(e,id){if(e.target===document.getElementById(id))closeModal(id);}
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  CRUD
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 function addPatient(){
   const nombre=document.getElementById('np-nombre').value.trim();
   if(!nombre){alert('El nombre es obligatorio.');return;}
   const colors=['#c084fc','#74c0fc','#34d399','#ffa94d','#ff6b6b','#fde68a','#f472b6','#38bdf8','#a78bfa'];
-  const p={
-    id:db.nextId++,
-    nombre,
-    edad:+document.getElementById('np-edad').value||0,
-    sexo:document.getElementById('np-sexo').value,
-    exp:document.getElementById('np-id').value||`EXP-${String(db.nextId-1).padStart(3,'0')}`,
-    dx:document.getElementById('np-dx').value,
-    med:document.getElementById('np-med').value,
-    tel:document.getElementById('np-tel').value,
-    color:colors[(db.nextId-2)%colors.length],
-    pa:[],sueno:[]
-  };
-  db.patients.push(p);
-  saveData();
-  closeModal('modal-add');
-  // reset
+  const p={id:db.nextId++,nombre,edad:+document.getElementById('np-edad').value||0,sexo:document.getElementById('np-sexo').value,exp:document.getElementById('np-id').value||`EXP-${String(db.nextId-1).padStart(3,'0')}`,dx:document.getElementById('np-dx').value,med:document.getElementById('np-med').value,tel:document.getElementById('np-tel').value,color:colors[(db.nextId-2)%colors.length],pa:[],sueno:[]};
+  db.patients.push(p);saveData();closeModal('modal-add');
   ['np-nombre','np-edad','np-id','np-dx','np-med','np-tel'].forEach(id=>document.getElementById(id).value='');
-  renderSidebar();
-  selectPatient(p.id);
+  renderSidebar();selectPatient(p.id);
 }
 
 function savePA(){
-  const sis=+document.getElementById('pa-sis').value;
-  const dia=+document.getElementById('pa-dia').value;
+  const sis=+document.getElementById('pa-sis').value;const dia=+document.getElementById('pa-dia').value;
   if(!sis||!dia||sis<70||sis>250||dia<40||dia>150){alert('Valores de presión arterial no válidos.');return;}
-  const p=getPatient();
-  if(!p){alert('Selecciona un paciente primero.');return;}
-  p.pa.push({
-    fecha:document.getElementById('pa-fecha').value||today(),
-    hora:document.getElementById('pa-hora').value||nowTime(),
-    sis,dia,
-    pulso:+document.getElementById('pa-pulso').value||72,
-    brazo:document.getElementById('pa-brazo').value,
-    pos:document.getElementById('pa-pos').value,
-    contexto:document.getElementById('pa-ctx').value,
-    notas:document.getElementById('pa-notas').value,
-  });
-  p.pa.sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  saveData();
-  closeModal('modal-pa');
+  const p=getPatient();if(!p){alert('Selecciona un paciente primero.');return;}
+  p.pa.push({fecha:document.getElementById('pa-fecha').value||today(),hora:document.getElementById('pa-hora').value||nowTime(),sis,dia,pulso:+document.getElementById('pa-pulso').value||72,brazo:document.getElementById('pa-brazo').value,pos:document.getElementById('pa-pos').value,contexto:document.getElementById('pa-ctx').value,notas:document.getElementById('pa-notas').value});
+  p.pa.sort((a,b)=>a.fecha.localeCompare(b.fecha));saveData();closeModal('modal-pa');
   ['pa-sis','pa-dia','pa-pulso','pa-notas'].forEach(id=>document.getElementById(id).value='');
-  renderSidebar();
-  renderPatient();
+  renderSidebar();renderPatient();
 }
 
 function saveSueno(){
-  const dormir=document.getElementById('su-dormir').value;
-  const despertar=document.getElementById('su-despertar').value;
+  const dormir=document.getElementById('su-dormir').value;const despertar=document.getElementById('su-despertar').value;
   if(!dormir||!despertar){alert('Ingresa hora de acostarse y despertar.');return;}
-  const p=getPatient();
-  if(!p){alert('Selecciona un paciente primero.');return;}
-  p.sueno.push({
-    fecha:document.getElementById('su-fecha').value||today(),
-    dormir,despertar,
-    cal:document.getElementById('su-cal').value,
-    estres:+document.getElementById('su-estres').value,
-    act:+document.getElementById('su-act').value,
-    caf:+document.getElementById('su-caf').value,
-    alc:+document.getElementById('su-alc').value,
-    int:+document.getElementById('su-int').value||0,
-    notas:document.getElementById('su-notas').value,
-  });
-  p.sueno.sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  saveData();
-  closeModal('modal-sueno');
-  document.getElementById('su-notas').value='';
-  renderSidebar();
-  renderPatient();
+  const p=getPatient();if(!p){alert('Selecciona un paciente primero.');return;}
+  p.sueno.push({fecha:document.getElementById('su-fecha').value||today(),dormir,despertar,cal:document.getElementById('su-cal').value,estres:+document.getElementById('su-estres').value,act:+document.getElementById('su-act').value,caf:+document.getElementById('su-caf').value,alc:+document.getElementById('su-alc').value,int:+document.getElementById('su-int').value||0,notas:document.getElementById('su-notas').value});
+  p.sueno.sort((a,b)=>a.fecha.localeCompare(b.fecha));saveData();closeModal('modal-sueno');
+  document.getElementById('su-notas').value='';renderSidebar();renderPatient();
 }
 
-function updateField(id,field,val){
-  const p=db.patients.find(p=>p.id===id);
-  if(p){p[field]=val;saveData();renderSidebar();}
-}
+function updateField(id,field,val){const p=db.patients.find(p=>p.id===id);if(p){p[field]=val;saveData();renderSidebar();}}
 
 function deletePatient(id){
   if(!confirm('¿Eliminar este paciente y todos sus registros? Esta acción no se puede deshacer.'))return;
-  db.patients=db.patients.filter(p=>p.id!==id);
-  saveData();
-  activePatientId=null;
-  renderSidebar();
-  renderOverview();
+  db.patients=db.patients.filter(p=>p.id!==id);saveData();activePatientId=null;renderSidebar();renderOverview();
 }
 
 function exportCSV(id){
-  const p=db.patients.find(p=>p.id===id);
-  if(!p)return;
+  const p=db.patients.find(p=>p.id===id);if(!p)return;
   let csv='Tipo,Fecha,Hora,Sistolica,Diastolica,Pulso,Contexto,Brazo,Notas\n';
   p.pa.forEach(r=>csv+=`PA,${r.fecha},${r.hora},${r.sis},${r.dia},${r.pulso},${r.contexto},${r.brazo},"${r.notas}"\n`);
   csv+='\nFecha,Dormir,Despertar,Horas,Calidad,Estres,Cafeina,Alcohol,Notas\n';
   p.sueno.forEach(r=>csv+=`${r.fecha},${r.dormir},${r.despertar},${calcH(r.dormir,r.despertar)},${r.cal},${r.estres},${r.caf},${r.alc},"${r.notas}"\n`);
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download=`${p.exp}_${p.nombre.replace(/ /g,'_')}.csv`;
-  a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`${p.exp}_${p.nombre.replace(/ /g,'_')}.csv`;a.click();
 }
 
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 //  INIT
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════
 renderSidebar();
 renderOverview();
 </script>
