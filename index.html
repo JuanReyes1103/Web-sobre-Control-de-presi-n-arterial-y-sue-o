@@ -505,72 +505,260 @@ function genRecsPatient(p){
   const priority = avgPA ? getPriorityLevel(avgPA.sis, avgPA.dia) : (lastPA ? getPriorityLevel(lastPA.sis, lastPA.dia) : null);
 
   if((!lastPA && !lastS) || (p.pa.length === 0)){
-    recs.push({icon:'📋',title:'Registra primeros datos',desc:'Agrega medición de PA y registro de sueño para obtener recomendaciones personalizadas.',tag:'info',tagLabel:'Pendiente',dot:'blue'});
+    recs.push({icon:'📋',title:'Registra primeros datos',desc:'Agrega medición de PA y registro de sueño para obtener recomendaciones personalizadas.',tag:'info',tagLabel:'Pendiente',dot:'blue', action:null});
     return recs;
   }
 
-  // Recomendación según prioridad clínica (usando PROMEDIO)
+  // ──────────────────────────────────────────────────────────────
+  // 1. RECOMENDACIONES SEGÚN PRIORIDAD CLÍNICA
+  // ──────────────────────────────────────────────────────────────
   if(priority && priority.level <= 1){
-    recs.push({icon:priority.emoji,title:`${priority.label} - ${priority.action}`,desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. ${priority.action}`,tag:priority.alertType === 'crisis' ? 'crisis' : (priority.alertType === 'danger' ? 'urgent' : 'warn'),tagLabel:priority.label,dot:priority.level === 0 ? 'red' : 'red'});
+    recs.push({icon:priority.emoji,title:`${priority.label} - ${priority.action}`,desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. ${priority.action}`,tag:priority.alertType === 'crisis' ? 'crisis' : (priority.alertType === 'danger' ? 'urgent' : 'warn'),tagLabel:priority.label,dot:priority.level === 0 ? 'red' : 'red', action:null});
   } else if(priority && priority.level === 2){
-    recs.push({icon:'📈',title:'HTA Grado 1 - Seguimiento',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Iniciar cambios: reducción de sodio, ejercicio regular, control de estrés.`,tag:'warn',tagLabel:'Seguimiento',dot:'orange'});
+    recs.push({icon:'📈',title:'HTA Grado 1 - Seguimiento',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Iniciar cambios: reducción de sodio, ejercicio regular, control de estrés.`,tag:'warn',tagLabel:'Seguimiento',dot:'orange', action:null});
   } else if(priority && priority.level === 3){
-    recs.push({icon:'📊',title:'Presión elevada - Prevención',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Reforzar hábitos saludables y monitoreo.`,tag:'info',tagLabel:'Prevención',dot:'blue'});
+    recs.push({icon:'📊',title:'Presión elevada - Prevención',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Reforzar hábitos saludables y monitoreo.`,tag:'info',tagLabel:'Prevención',dot:'blue', action:null});
   }
 
-  // DETECCIÓN DE PICOS AISLADOS (promedio normal pero última medición es crisis)
+  // ──────────────────────────────────────────────────────────────
+  // 2. EJERCICIOS DE RELAJACIÓN PARA ESTRÉS ELEVADO (ESPECÍFICOS)
+  // ──────────────────────────────────────────────────────────────
+  if(lastS && lastS.estres >= 8){
+    recs.push({
+      icon:'🧘', 
+      title:'Técnica de Respiración 4-7-8 para reducir estrés', 
+      desc:`Estrés reportado: ${lastS.estres}/10. Esta técnica reduce el cortisol y puede bajar la PA sistólica 5-10 mmHg en 5 minutos. 
+      
+      📋 CÓMO HACERLO:
+      1️⃣ Siéntate cómodamente con la espalda recta
+      2️⃣ Inspira por la nariz durante 4 segundos
+      3️⃣ Mantén la respiración durante 7 segundos
+      4️⃣ Exhala lentamente por la boca durante 8 segundos
+      5️⃣ Repite 4-8 ciclos, 2 veces al día
+      
+      🔗 Recurso: Busca "Respiración 4-7-8 Dr. Andrew Weil" en YouTube.`, 
+      tag:'info', 
+      tagLabel:'Ejercicio práctico', 
+      dot:'orange',
+      action:'respiración'
+    });
+    
+    recs.push({
+      icon:'🧘‍♀️',
+      title:'Relajación Muscular Progresiva (RMP)',
+      desc:`Ideal para antes de dormir. Tensa y relaja cada grupo muscular durante 5-10 segundos:
+      
+      📋 SECUENCIA: Pies → Pantorrillas → Muslos → Abdomen → Manos → Brazos → Hombros → Cuello → Rostro
+      
+      ⏰ Dedicar 10-15 minutos antes de acostarse reduce la PA nocturna.`,
+      tag:'info',
+      tagLabel:'Técnica guiada',
+      dot:'orange',
+      action:'rmp'
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 3. ACTIVIDAD FÍSICA ESPECÍFICA (con tipo, duración e intensidad)
+  // ──────────────────────────────────────────────────────────────
+  if(lastPA && lastPA.sis >= 130 && !(p.dx||'').toLowerCase().includes('insuf')){
+    recs.push({
+      icon:'🚶', 
+      title:'Caminata rápida - Programa de 8 semanas', 
+      desc:`La actividad física regular reduce la PA sistólica 5-8 mmHg.
+      
+      📋 PLAN SEMANAL:
+      • Semanas 1-2: 15 min caminata, ritmo suave, 3 días/semana
+      • Semanas 3-4: 20 min, ritmo moderado (puedes hablar pero no cantar), 4 días/semana
+      • Semanas 5-6: 25 min, ritmo brisk (ligero esfuerzo), 5 días/semana
+      • Semanas 7-8: 30 min, 5 días/semana
+      
+      ⚠️ Meta final: 150 min/semana de actividad aeróbica moderada.
+      📱 Apps útiles: Pacer, Google Fit, Samsung Health`, 
+      tag:'info', 
+      tagLabel:'Plan de ejercicio', 
+      dot:'blue',
+      action:'caminata'
+    });
+    
+    recs.push({
+      icon:'💪',
+      title:'Ejercicios isométricos para hipertensión',
+      desc:`Estudios recientes muestran que las planchas y sentadillas contra la pared reducen la PA significativamente.
+      
+      📋 RUTINA (3 veces/semana):
+      • Sentadilla contra pared: mantener 45 segundos, descansar 30s, repetir 4 veces
+      • Plancha frontal: mantener 30 segundos, descansar 20s, repetir 3 veces
+      • Apretar pelota antiestrés: 2 minutos continuos
+      
+      ⚠️ Contraindicado si tiene angina inestable o insuficiencia cardíaca severa.`,
+      tag:'info',
+      tagLabel:'Ejercicios específicos',
+      dot:'blue',
+      action:'isometricos'
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 4. HIGIENE DEL SUEÑO (específica y accionable)
+  // ──────────────────────────────────────────────────────────────
+  if(lastS){
+    const h=calcH(lastS.dormir,lastS.despertar);
+    if(h < 6){
+      recs.push({
+        icon:'😴', 
+        title:'Protocolo de higiene del sueño - 7 días', 
+        desc:`Dormir menos de 6 horas eleva la PA sistólica 10-15 mmHg.
+        
+        📋 PLAN DE ACCIÓN:
+        🌙 1 hora antes de acostarse:
+           • Apagar pantallas (móvil, TV, tablet) - la luz azul inhibe melatonina
+           • Usar filtro de luz azul en dispositivos si es indispensable
+           • Realizar respiración 4-7-8 (arriba)
+        
+        🛌 Durante la noche:
+           • Habitación oscura (cortinas blackout) y fresca (18-20°C)
+           • Sin cafeína después de las 14:00h
+           • Mismo horario para acostarse y despertarse (incluyendo fines de semana)
+        
+        📱 Apps recomendadas: "Sleep Cycle" o "Relax Melodies"`, 
+        tag:'warn', 
+        tagLabel:'Plan de 7 días', 
+        dot:'purple',
+        action:'higiene_sueño'
+      });
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 5. REDUCCIÓN DE CAFEÍNA (específica)
+  // ──────────────────────────────────────────────────────────────
+  if(lastS && lastS.caf >= 4){
+    recs.push({
+      icon:'☕', 
+      title:'Plan de reducción de cafeína', 
+      desc:`${lastS.caf} tazas/día. La cafeína después de las 14:00h fragmenta el sueño profundo.
+      
+      📋 PLAN SEMANAL:
+      • Reemplazar café de la tarde por té descafeinado o agua con limón
+      • Reducir 1 taza por semana hasta llegar a máximo 2 tazas/día (solo antes de las 12:00)
+      • Alternativas: té verde (menos cafeína), café descafeinado, chicory coffee
+      
+      📊 Beneficio esperado en 2 semanas: mejora del sueño y reducción de 3-5 mmHg en PA sistólica.`,
+      tag:'info', 
+      tagLabel:'Plan de reducción', 
+      dot:'orange',
+      action:'cafeina'
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 6. REDUCCIÓN DE SODIO (específica)
+  // ──────────────────────────────────────────────────────────────
+  if((avgPA && avgPA.sis >= 130) || (lastPA && lastPA.sis >= 130)){
+    recs.push({
+      icon:'🧂',
+      title:'Cómo reducir el sodio (sin sacrificar sabor)',
+      desc:`La OMS recomienda <5g de sal/día (2g de sodio). Cada reducción de 1g de sodio baja la PA 2.5 mmHg.
+      
+      📋 ESTRATEGIAS PRÁCTICAS:
+      ✅ Usar especias: ajo, cebolla, orégano, romero, pimienta, cúrcuma, jengibre
+      ✅ Limón y vinagre: realzan el sabor sin sal
+      ✅ Evitar alimentos ultraprocesados: embutidos, sopas enlatadas, salsas comerciales
+      ✅ Leer etiquetas: buscar "bajo en sodio" (<120mg/100g)
+      ✅ Cocinar en casa (control total de la sal)
+      
+      🔗 Apps útiles: "MyFitnessPal" (contador de sodio), "Sin Sal" (recetas)`,
+      tag:'warn',
+      tagLabel:'Nutrición práctica',
+      dot:'orange',
+      action:'sodio'
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 7. EJERCICIOS POSTURALES PARA MEDICIÓN DE PA (calidad de medición)
+  // ──────────────────────────────────────────────────────────────
+  if(lastPA && (lastPA.pos === 'de pie' || lastPA.brazo !== 'izquierdo')){
+    recs.push({
+      icon:'🩺',
+      title:'Técnica correcta para medir PA en casa',
+      desc:`Mediciones incorrectas llevan a falsos diagnósticos.
+      
+      📋 PROTOCOLO ESTÁNDAR:
+      1️⃣ Reposo 5 minutos sentado, espalda apoyada
+      2️⃣ Brazo izquierdo apoyado a la altura del corazón
+      3️⃣ Manguito sobre piel (no sobre ropa)
+      4️⃣ No hablar ni moverse durante la medición
+      5️⃣ Tomar 2 mediciones con 1-2 minutos de diferencia → usar el promedio
+      
+      📅 Frecuencia: 2 veces al día (mañana y noche) durante 7 días para diagnóstico.`,
+      tag:'info',
+      tagLabel:'Educación al paciente',
+      dot:'blue',
+      action:'medicion'
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 8. DETECCIÓN DE PICOS AISLADOS
+  // ──────────────────────────────────────────────────────────────
   if(lastPA && (lastPA.sis > 180 || lastPA.dia > 120) && avgPA && !(avgPA.sis > 180 || avgPA.dia > 120)){
-    recs.push({icon:'⚡🚨',title:'PICO HIPERTENSIVO AISLADO - Verificar',desc:`Última medición ${lastPA.sis}/${lastPA.dia} mmHg (crisis) pero el promedio es normal. Descartar error, dolor agudo, ansiedad o causa transitoria.`,tag:'warn',tagLabel:'Verificar',dot:'orange'});
+    recs.push({icon:'⚡🚨',title:'PICO HIPERTENSIVO AISLADO - Verificar',desc:`Última medición ${lastPA.sis}/${lastPA.dia} mmHg pero el promedio es normal. Posibles causas: estrés agudo, dolor, ejercicio reciente, error de medición. Repetir en 15 minutos en reposo. Si persiste >180/120, acudir a urgencias.`,tag:'warn',tagLabel:'Verificar',dot:'orange', action:null});
   }
 
-  // Variabilidad PA
+  // ──────────────────────────────────────────────────────────────
+  // 9. VARIABILIDAD DE PA
+  // ──────────────────────────────────────────────────────────────
   if(p.pa.length>=3){
     const recientes=p.pa.slice(-5).map(r=>r.sis);
     const max=Math.max(...recientes), min=Math.min(...recientes);
     if(max-min>20){
-      recs.push({icon:'📊',title:'Alta variabilidad en PA',desc:`Variación de ${max-min} mmHg en sistólica. Revisa consistencia en horario de medicación.`,tag:'warn',tagLabel:'Variabilidad',dot:'orange'});
+      recs.push({icon:'📊',title:'Alta variabilidad en PA',desc:`Variación de ${max-min} mmHg en sistólica. Registra en un diario: horario de medicación, comidas, estrés, sueño. Consulta con tu médico para ajustar horario de toma de medicamentos.`,tag:'warn',tagLabel:'Variabilidad',dot:'orange', action:null});
     }
   }
 
-  if(lastPA && lastPA.pulso>100){
-    recs.push({icon:'💓',title:'Taquicardia en reposo',desc:`Pulso de ${lastPA.pulso} lpm. Descartar ansiedad, hipertiroidismo o efecto de medicamentos.`,tag:'warn',tagLabel:'Pulso',dot:'orange'});
+  // ──────────────────────────────────────────────────────────────
+  // 10. TAQUICARDIA EN REPOSO
+  // ──────────────────────────────────────────────────────────────
+  if(lastPA && lastPA.pulso > 100){
+    recs.push({icon:'💓',title:'Taquicardia en reposo',desc:`Pulso de ${lastPA.pulso} lpm. Causas frecuentes: ansiedad, deshidratación, cafeína en exceso, hipertiroidismo o efecto de medicamentos (broncodilatadores, descongestionantes). Si persiste, solicitar ECG y perfil tiroideo.`,tag:'warn',tagLabel:'Requiere estudio',dot:'orange', action:null});
   }
 
-  // Sueño
-  if(lastS){
-    const h=calcH(lastS.dormir,lastS.despertar);
-    if(h<5) recs.push({icon:'😴',title:'Sueño severamente insuficiente',desc:`${h}h - El déficit severo puede elevar la PA sistólica 10-15 mmHg.`,tag:'warn',tagLabel:'Crítico',dot:'red'});
-    else if(h<6) recs.push({icon:'🌙',title:'Aumentar duración del sueño',desc:`${h}h - Establecer horario fijo y reducir pantallas antes de dormir.`,tag:'info',tagLabel:'Sueño',dot:'purple'});
-    if(lastS.estres>=8) recs.push({icon:'🧘',title:'Estrés elevado',desc:`Estrés ${lastS.estres}/10 - Técnicas de relajación pueden reducir PA.`,tag:'info',tagLabel:'Estrés',dot:'orange'});
-    if(lastS.caf>=4) recs.push({icon:'☕',title:'Ingesta alta de cafeína',desc:`${lastS.caf} tazas. Limitar cafeína después de las 14:00h.`,tag:'info',tagLabel:'Cafeína',dot:'orange'});
-  }
-
-  // Correlación sueño-PA
-  if(p.pa.length>=3&&p.sueno.length>=3){
+  // ──────────────────────────────────────────────────────────────
+  // 11. CORRELACIÓN SUEÑO - PA
+  // ──────────────────────────────────────────────────────────────
+  if(p.pa.length>=3 && p.sueno.length>=3){
     const n=Math.min(p.pa.length,p.sueno.length,7);
     const pares=Array.from({length:n},(_,i)=>({h:calcH(p.sueno[i].dormir,p.sueno[i].despertar),sis:p.pa[i].sis}));
     const noches_cortas=pares.filter(x=>x.h<6);
     const noches_ok=pares.filter(x=>x.h>=7);
-    if(noches_cortas.length>=2&&noches_ok.length>=1){
+    if(noches_cortas.length>=2 && noches_ok.length>=1){
       const avgSisCortas=Math.round(noches_cortas.reduce((a,x)=>a+x.sis,0)/noches_cortas.length);
       const avgSisOk=Math.round(noches_ok.reduce((a,x)=>a+x.sis,0)/noches_ok.length);
       if(avgSisCortas-avgSisOk>5){
-        recs.push({icon:'🔗',title:'Patrón detectado: sueño corto → PA alta',desc:`Con noches <6h, PA sistólica ${avgSisCortas} mmHg; con ≥7h ${avgSisOk} mmHg.`,tag:'warn',tagLabel:'Correlación',dot:'purple'});
+        recs.push({icon:'🔗',title:'Patrón detectado: sueño corto → PA alta',desc:`Con noches <6h, PA sistólica ${avgSisCortas} mmHg. Con ≥7h, ${avgSisOk} mmHg. La prioridad #1 debe ser mejorar el sueño. Aplica el Protocolo de higiene del sueño (ver arriba).`,tag:'warn',tagLabel:'Correlación confirmada',dot:'purple', action:'priorizar_sueño'});
       }
     }
   }
 
-  if(lastPA && lastPA.sis>=130 && !(p.dx||'').toLowerCase().includes('insuf')){
-    recs.push({icon:'🏃',title:'Actividad física aeróbica regular',desc:'30 min de caminata rápida 5 días/semana puede reducir la PA sistólica hasta 7 mmHg.',tag:'info',tagLabel:'Estilo de vida',dot:'blue'});
-  }
-
-  if(avgPA && avgPA.sis>=140 && p.med && p.med.toLowerCase()!=='ninguna'){
-    recs.push({icon:'💊',title:'Revisar adherencia y eficacia del tratamiento',desc:`Paciente con medicación (${p.med}) y PA promedio alta (${avgPA.sis}/${avgPA.dia} mmHg).`,tag:'urgent',tagLabel:'Medicación',dot:'red'});
+  // ──────────────────────────────────────────────────────────────
+  // 12. CONSEJO SOBRE MEDICACIÓN
+  // ──────────────────────────────────────────────────────────────
+  if(avgPA && avgPA.sis >= 140 && p.med && p.med.toLowerCase() !== 'ninguna'){
+    recs.push({icon:'💊',title:'Evaluación de adherencia al tratamiento',desc:`Paciente con medicación (${p.med}) pero PA promedio alta (${avgPA.sis}/${avgPA.dia} mmHg). Preguntar:
+      
+      📋 CHECKLIST:
+      ☐ ¿Toma el medicamento todos los días a la misma hora?
+      ☐ ¿Algún efecto secundario (mareo, tos, edema)?
+      ☐ ¿Está tomando otros medicamentos (AINEs, corticoides, descongestionantes) que elevan la PA?
+      ☐ ¿Consume regaliz o suplementos sin consultar?
+      
+      Si adherencia es buena y PA sigue alta → considerar ajuste de dosis o añadir segundo fármaco.`,tag:'urgent',tagLabel:'Revisar medicación',dot:'red', action:null});
   }
 
   return recs;
 }
-
 function genRecsGlobal(){
   const recs=[];
   const patientsWithPriority = db.patients.map(p => {
@@ -608,7 +796,34 @@ function renderRecCards(recs){
 function renderRecPatientList(recs){
   if(!recs.length)return'<div class="no-data">Sin recomendaciones disponibles.</div>';
   const dotClass={red:'dot-red',orange:'dot-orange',blue:'dot-blue',green:'dot-green',purple:'dot-purple'};
-  return`<div class="rec-list">${recs.map(r=>`<div class="rec-item"><div class="rec-item-dot ${dotClass[r.dot]||'dot-blue'}"></div><div class="rec-item-text"><strong>${r.title}.</strong> ${r.desc}</div></div>`).join('')}</div>`;
+  
+  // Función para generar acción según tipo
+  function getActionButton(action){
+    if(action === 'respiración'){
+      return `<button class="btn-sec" style="font-size:.65rem; padding:.2rem .5rem; margin-top:.5rem" onclick="window.open('https://www.youtube.com/results?search_query=respiracion+4-7-8', '_blank')">🎬 Ver tutorial</button>`;
+    }
+    if(action === 'caminata'){
+      return `<button class="btn-sec" style="font-size:.65rem; padding:.2rem .5rem; margin-top:.5rem" onclick="window.open('https://www.youtube.com/results?search_query=caminata+rapida+para+hipertensos', '_blank')">🎬 Ver rutina</button>`;
+    }
+    if(action === 'isometricos'){
+      return `<button class="btn-sec" style="font-size:.65rem; padding:.2rem .5rem; margin-top:.5rem" onclick="window.open('https://www.youtube.com/results?search_query=ejercicios+isometricos+presion+arterial', '_blank')">🎬 Ver ejercicios</button>`;
+    }
+    if(action === 'higiene_sueño'){
+      return `<button class="btn-sec" style="font-size:.65rem; padding:.2rem .5rem; margin-top:.5rem" onclick="window.open('https://www.youtube.com/results?search_query=higiene+del+sue%C3%B1o+tipos', '_blank')">🎬 Consejos en video</button>`;
+    }
+    return '';
+  }
+  
+  return`<div class="rec-list">${recs.map(r=>`
+    <div class="rec-item">
+      <div class="rec-item-dot ${dotClass[r.dot]||'dot-blue'}"></div>
+      <div class="rec-item-text">
+        <strong>${r.title}.</strong> 
+        <span style="white-space:pre-line">${r.desc}</span>
+        ${getActionButton(r.action)}
+      </div>
+    </div>
+  `).join('')}</div>`;
 }
 
 // ════════════════════════════════
@@ -1238,5 +1453,4 @@ renderSidebar();
 renderOverview();
 </script>
 </body>
-  
 </html>
