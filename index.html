@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EQUIPO 2 — Presión Arterial & Sueño</title>
+<title>EQUIPO 2 — Presión Arterial & Sueño | Prioridad Clínica</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -13,6 +13,7 @@
   --tx:#e6edf3;--muted:#7d8590;--muted2:#adbac7;
   --red:#ff6b6b;--orange:#ffa94d;--green:#69db7c;--blue:#74c0fc;
   --purple:#c084fc;--teal:#34d399;--yellow:#fde68a;
+  --priority-crisis:#ff3b3b;--priority-g2:#ff6b6b;--priority-g1:#ffa94d;--priority-elevada:#fde68a;--priority-normal:#69db7c;
   --r:10px;--r2:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -33,7 +34,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .search-box input::placeholder{color:var(--muted);}
 .search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;}
 
-/* ── Panel general nav item en sidebar ── */
 .sidebar-section-label{font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.75rem 1rem .4rem;}
 
 .nav-overview{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border-radius:var(--r);cursor:pointer;transition:background .15s;margin:0 .5rem .25rem;position:relative;}
@@ -51,6 +51,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .patient-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border-radius:var(--r);cursor:pointer;transition:background .15s;margin-bottom:2px;position:relative;}
 .patient-item:hover{background:var(--s2);}
 .patient-item.active{background:var(--s3);border:1px solid var(--b2);}
+.patient-item.priority-crisis{border-left:3px solid var(--priority-crisis);background:rgba(255,59,59,.08);}
+.patient-item.priority-g2{border-left:3px solid var(--priority-g2);background:rgba(255,107,107,.05);}
+.patient-item.priority-g1{border-left:3px solid var(--priority-g1);}
+.patient-item.priority-elevada{border-left:3px solid var(--priority-elevada);}
 .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;flex-shrink:0;}
 .patient-info{flex:1;min-width:0;}
 .patient-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -59,12 +63,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .badge-ok{background:rgba(105,219,124,.15);color:#4ade80;border:1px solid rgba(105,219,124,.25);}
 .badge-warn{background:rgba(255,169,77,.15);color:#fb923c;border:1px solid rgba(255,169,77,.25);}
 .badge-danger{background:rgba(255,107,107,.15);color:#f87171;border:1px solid rgba(255,107,107,.25);}
+.badge-crisis{background:rgba(255,59,59,.3);color:#ff8888;border:1px solid #ff3b3b;}
 .badge-gray{background:var(--b1);color:var(--muted);border:1px solid var(--b2);}
 
 .btn-add-patient{display:flex;align-items:center;gap:.5rem;width:100%;padding:.55rem .8rem;background:transparent;border:1px dashed var(--b2);border-radius:var(--r);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;margin:.5rem 0;}
 .btn-add-patient:hover{border-color:var(--blue);color:var(--blue);}
 
-/* ── Top bar ── */
 .topbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:.85rem 1.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
 .topbar-left h2{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400;}
 .topbar-left p{font-size:.75rem;color:var(--muted);margin-top:.1rem;}
@@ -80,13 +84,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .empty-state h3{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--muted2);}
 .empty-state p{font-size:.85rem;color:var(--muted);max-width:300px;line-height:1.6;}
 
-/* ── Sub-tabs ── */
 .sub-tabs{display:flex;gap:.35rem;background:var(--s1);border-radius:var(--r);padding:.3rem;border:1px solid var(--b1);margin-bottom:1.5rem;width:fit-content;}
 .sub-tab{padding:.4rem .9rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;}
 .sub-tab.active{background:var(--s3);color:var(--tx);}
 .sub-tab:hover:not(.active){color:var(--tx);}
 
-/* ── Cards ── */
 .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.85rem;margin-bottom:1.25rem;}
 .card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.1rem 1.2rem;transition:border-color .2s;}
 .card:hover{border-color:var(--b2);}
@@ -97,20 +99,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .status-pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.67rem;font-weight:600;padding:.2rem .55rem;border-radius:20px;margin-top:.45rem;}
 
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
-@media(max-width:900px){.two-col{grid-template-columns:1fr;}.app{flex-direction:column;height:auto;}.sidebar{width:100%;height:auto;max-height:280px;}}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem;}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr;}.app{flex-direction:column;height:auto;}.sidebar{width:100%;height:auto;max-height:280px;}}
 
 .chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
 .chart-card h3{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
 .chart-wrap{position:relative;height:200px;}
 
-/* ── Alerts ── */
 .alert{border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.85rem;display:flex;gap:.65rem;font-size:.82rem;line-height:1.5;}
-.alert-danger{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:#fca5a5;}
-.alert-warn{background:rgba(255,169,77,.08);border:1px solid rgba(255,169,77,.2);color:#fdba74;}
+.alert-crisis{background:rgba(255,59,59,.25);border:2px solid #ff3b3b;color:#ffaaaa;font-weight:500;}
+.alert-danger{background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:#fca5a5;}
+.alert-warn{background:rgba(255,169,77,.12);border:1px solid rgba(255,169,77,.25);color:#fdba74;}
 .alert-info{background:rgba(116,192,252,.08);border:1px solid rgba(116,192,252,.2);color:#93c5fd;}
-.alert-ok{background:rgba(105,219,124,.08);border:1px solid rgba(105,219,124,.2);color:#86efac;}
+.alert-success{background:rgba(105,219,124,.08);border:1px solid rgba(105,219,124,.2);color:#86efac;}
 
-/* ── Recomendaciones ── */
 .rec-section{margin-bottom:1.25rem;}
 .rec-section-title{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
 .rec-section-title::after{content:'';flex:1;height:1px;background:var(--b1);}
@@ -122,12 +124,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .rec-title{font-size:.82rem;font-weight:600;margin-bottom:.25rem;}
 .rec-desc{font-size:.76rem;color:var(--muted2);line-height:1.55;}
 .rec-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:.15rem .45rem;border-radius:4px;margin-top:.5rem;text-transform:uppercase;}
-.tag-urgent{background:rgba(255,107,107,.15);color:#f87171;border:1px solid rgba(255,107,107,.25);}
+.tag-crisis{background:rgba(255,59,59,.25);color:#ff8888;border:1px solid #ff3b3b;}
+.tag-urgent{background:rgba(255,107,107,.2);color:#f87171;border:1px solid rgba(255,107,107,.3);}
 .tag-warn{background:rgba(255,169,77,.15);color:#fb923c;border:1px solid rgba(255,169,77,.25);}
 .tag-info{background:rgba(116,192,252,.15);color:#60a5fa;border:1px solid rgba(116,192,252,.25);}
 .tag-ok{background:rgba(105,219,124,.15);color:#4ade80;border:1px solid rgba(105,219,124,.25);}
 
-/* ── Rec paciente individual ── */
 .rec-patient-block{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.1rem 1.3rem;margin-bottom:1rem;}
 .rec-patient-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;}
 .rec-patient-header span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
@@ -142,7 +144,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .rec-item-text{font-size:.8rem;color:var(--muted2);line-height:1.55;}
 .rec-item-text strong{color:var(--tx);}
 
-/* ── Form ── */
 .form-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:1.25rem 1.4rem;margin-bottom:1rem;}
 .form-card h3{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.85rem 1.2rem;}
@@ -163,27 +164,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .btn-danger-sm{background:transparent;border:1px solid rgba(255,107,107,.3);color:#f87171;border-radius:var(--r);padding:.35rem .7rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;}
 .btn-danger-sm:hover{background:rgba(255,107,107,.1);}
 
-/* ── Table ── */
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:.8rem;}
 th{font-size:.65rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--b1);}
 td{padding:.6rem .75rem;border-bottom:1px solid var(--b1);}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,.015);}
+tr.priority-row-crisis{background:rgba(255,59,59,.1);}
+tr.priority-row-g2{background:rgba(255,107,107,.06);}
+tr.priority-row-g1{background:rgba(255,169,77,.04);}
 
-/* ── Modal ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);padding:2rem;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;}
 .modal h2{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:1.25rem;}
 .modal-footer{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.25rem;}
 
-/* ── Stats overview ── */
 .overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.5rem;}
 .ov-card{background:var(--s2);border-radius:var(--r);padding:.85rem 1rem;text-align:center;}
 .ov-num{font-size:1.7rem;font-weight:300;font-family:'DM Serif Display',serif;line-height:1;}
 .ov-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:.25rem;}
 
-/* ── Profile header ── */
 .profile-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:.85rem 1.2rem;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);}
 .profile-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;flex-shrink:0;}
 .profile-info h2{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400;}
@@ -196,19 +196,24 @@ tr:hover td{background:rgba(255,255,255,.015);}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
 
-/* ── Acciones de fila ── */
 .row-actions{display:flex;gap:.3rem;opacity:0;transition:opacity .15s;}
 tr:hover .row-actions{opacity:1;}
 .btn-edit-row{background:transparent;border:1px solid var(--b2);color:var(--muted2);border-radius:6px;padding:.2rem .45rem;font-size:.7rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
 .btn-edit-row:hover{border-color:var(--blue);color:var(--blue);background:rgba(116,192,252,.08);}
 .btn-del-row{background:transparent;border:1px solid transparent;color:var(--muted);border-radius:6px;padding:.2rem .45rem;font-size:.7rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
 .btn-del-row:hover{border-color:rgba(255,107,107,.4);color:#f87171;background:rgba(255,107,107,.08);}
+
+.priority-badge{font-size:.65rem;font-weight:600;padding:.15rem .5rem;border-radius:4px;margin-left:.5rem;}
+.prio-crisis{background:#ff3b3b;color:#fff;}
+.prio-g2{background:#ff6b6b;color:#fff;}
+.prio-g1{background:#ffa94d;color:#1a1a1a;}
+.prio-elevada{background:#fde68a;color:#1a1a1a;}
+.prio-normal{background:#69db7c;color:#1a1a1a;}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-head">
     <div class="brand">
@@ -221,13 +226,12 @@ tr:hover .row-actions{opacity:1;}
     </div>
   </div>
 
-  <!-- Botón Panel General siempre visible -->
   <div class="sidebar-section-label">Vistas</div>
   <div class="nav-overview active" id="nav-overview-btn" onclick="goOverview()">
     <div class="nav-icon">📊</div>
     <div class="nav-info">
       <div class="nav-name">Panel general</div>
-      <div class="nav-meta">Todos los pacientes</div>
+      <div class="nav-meta">Priorización clínica automática</div>
     </div>
   </div>
 
@@ -239,13 +243,12 @@ tr:hover .row-actions{opacity:1;}
   </div>
 </aside>
 
-<!-- MAIN -->
 <div class="main">
 
   <div class="topbar" id="topbar-overview">
     <div class="topbar-left">
       <h2>Panel general</h2>
-      <p>Monitoreo de presión arterial y sueño — todos los pacientes</p>
+      <p>Priorización según presión arterial — ver primero los más urgentes</p>
     </div>
     <div class="topbar-right">
       <div class="clock" id="clock"></div>
@@ -268,7 +271,7 @@ tr:hover .row-actions{opacity:1;}
 </div>
 </div>
 
-<!-- MODAL AGREGAR PACIENTE -->
+<!-- MODALES -->
 <div class="modal-bg" id="modal-add" style="display:none" onclick="closeModalIfBg(event,'modal-add')">
   <div class="modal">
     <h2>Nuevo paciente</h2>
@@ -288,7 +291,6 @@ tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- MODAL PA -->
 <div class="modal-bg" id="modal-pa" style="display:none" onclick="closeModalIfBg(event,'modal-pa')">
   <div class="modal">
     <h2>Nueva medición de presión arterial</h2>
@@ -310,7 +312,6 @@ tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- MODAL SUEÑO -->
 <div class="modal-bg" id="modal-sueno" style="display:none" onclick="closeModalIfBg(event,'modal-sueno')">
   <div class="modal">
     <h2>Nuevo registro de sueño</h2>
@@ -344,7 +345,6 @@ tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- MODAL EDITAR PA -->
 <div class="modal-bg" id="modal-edit-pa" style="display:none" onclick="closeModalIfBg(event,'modal-edit-pa')">
   <div class="modal">
     <h2>Editar medición de PA</h2>
@@ -368,7 +368,6 @@ tr:hover .row-actions{opacity:1;}
   </div>
 </div>
 
-<!-- MODAL EDITAR SUEÑO -->
 <div class="modal-bg" id="modal-edit-sueno" style="display:none" onclick="closeModalIfBg(event,'modal-edit-sueno')">
   <div class="modal">
     <h2>Editar registro de sueño</h2>
@@ -408,7 +407,7 @@ tr:hover .row-actions{opacity:1;}
 // ════════════════════════════════
 //  DATA STORE
 // ════════════════════════════════
-const STORE_KEY = 'eq2_data_v2';
+const STORE_KEY = 'eq2_data_v5_priority';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{patients:[],nextId:1};}catch{return{patients:[],nextId:1};}}
 function saveData(){localStorage.setItem(STORE_KEY,JSON.stringify(db));}
 let db = loadData();
@@ -448,15 +447,44 @@ let editingPAIdx=null;
 let editingSuenoIdx=null;
 
 // ════════════════════════════════
+//  FUNCIÓN DE PRIORIDAD CLÍNICA (basada en AHA/ACC 2025)
+// ════════════════════════════════
+function getPriorityLevel(sis, dia) {
+  if (!sis || !dia) return { level: 99, label: 'Sin datos', color: 'gray', priorityClass: '', alertType: 'info', emoji: '📋', action: 'Registrar primera medición', bgClass: '' };
+  if (sis > 180 || dia > 120) return { level: 0, label: 'CRISIS', color: 'crisis', priorityClass: 'priority-crisis', alertType: 'crisis', emoji: '🚨🚨', action: 'ATENCIÓN INMEDIATA - Derivar a urgencias', bgClass: 'priority-row-crisis' };
+  if (sis >= 140 || dia >= 90) return { level: 1, label: 'HTA Grado 2', color: 'g2', priorityClass: 'priority-g2', alertType: 'danger', emoji: '🚨', action: 'Prioridad alta - Revisar esta semana', bgClass: 'priority-row-g2' };
+  if (sis >= 130 || dia >= 80) return { level: 2, label: 'HTA Grado 1', color: 'g1', priorityClass: 'priority-g1', alertType: 'warn', emoji: '⚠️', action: 'Seguimiento - Cambios estilo de vida', bgClass: 'priority-row-g1' };
+  if (sis >= 120) return { level: 3, label: 'Elevada', color: 'elevada', priorityClass: 'priority-elevada', alertType: 'info', emoji: '📊', action: 'Prevención - Reforzar hábitos saludables', bgClass: '' };
+  return { level: 4, label: 'Normal', color: 'normal', priorityClass: '', alertType: 'success', emoji: '✅', action: 'Seguimiento rutinario', bgClass: '' };
+}
+
+// ════════════════════════════════
+//  PROMEDIO DE PA (últimos 7 días)
+// ════════════════════════════════
+function getAverageBP(patient, daysBack = 7) {
+  if (!patient.pa || patient.pa.length === 0) return null;
+  const today = new Date();
+  const recent = patient.pa.filter(record => {
+    const recordDate = new Date(record.fecha);
+    const diffDays = (today - recordDate) / (1000 * 60 * 60 * 24);
+    return diffDays <= daysBack;
+  });
+  const recordsToUse = recent.length >= 2 ? recent : patient.pa;
+  const avgSis = Math.round(recordsToUse.reduce((sum, r) => sum + r.sis, 0) / recordsToUse.length);
+  const avgDia = Math.round(recordsToUse.reduce((sum, r) => sum + r.dia, 0) / recordsToUse.length);
+  return { sis: avgSis, dia: avgDia, count: recordsToUse.length };
+}
+
+// ════════════════════════════════
 //  UTILS
 // ════════════════════════════════
 function calcH(dormir,despertar){const[dh,dm]=dormir.split(':').map(Number);const[wh,wm]=despertar.split(':').map(Number);let m=(wh*60+wm)-(dh*60+dm);if(m<0)m+=1440;return Math.round(m/6)/10;}
 function clsPA(s,d){
-  if(s>180||d>120)return{label:'Crisis',cls:'badge-danger',emoji:'🚨'};
+  if(s>180||d>120)return{label:'Crisis',cls:'badge-crisis',emoji:'🚨🚨'};
   if(s>=140||d>=90)return{label:'HTA G2',cls:'badge-danger',emoji:'🚨'};
-  if(s>=130||d>=80)return{label:'HTA G1',cls:'badge-warn',emoji:'⚠'};
-  if(s>=120)return{label:'Elevada',cls:'badge-warn',emoji:'⚠'};
-  return{label:'Normal',cls:'badge-ok',emoji:'✓'};
+  if(s>=130||d>=80)return{label:'HTA G1',cls:'badge-warn',emoji:'⚠️'};
+  if(s>=120)return{label:'Elevada',cls:'badge-warn',emoji:'⚠️'};
+  return{label:'Normal',cls:'badge-ok',emoji:'✅'};
 }
 function clsH(h){if(h>=7)return{label:'Óptimo',cls:'badge-ok'};if(h>=6)return{label:'Insuf.',cls:'badge-warn'};return{label:'Defic.',cls:'badge-danger'};}
 function initials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
@@ -467,81 +495,57 @@ function destroyCharts(){Object.values(chartInstances).forEach(c=>{try{c.destroy
 function rv(id,vid){document.getElementById(vid).textContent=document.getElementById(id).value;}
 
 // ════════════════════════════════
-//  MOTOR DE RECOMENDACIONES
+//  MOTOR DE RECOMENDACIONES (actualizado para usar prioridad)
 // ════════════════════════════════
-
-// Genera recomendaciones personalizadas para un paciente
 function genRecsPatient(p){
   const recs=[];
-  const lastPA=p.pa.at(-1);
-  const lastS=p.sueno.at(-1);
+  const avgPA = getAverageBP(p);
+  const lastPA = p.pa.at(-1);
+  const lastS = p.sueno.at(-1);
+  const priority = avgPA ? getPriorityLevel(avgPA.sis, avgPA.dia) : (lastPA ? getPriorityLevel(lastPA.sis, lastPA.dia) : null);
 
-  if(!lastPA&&!lastS){
-    recs.push({icon:'📋',title:'Registra primeros datos',desc:'Este paciente aún no tiene mediciones. Agrega al menos una medición de PA y una noche de sueño para obtener recomendaciones personalizadas.',tag:'info',tagLabel:'Pendiente',dot:'blue'});
+  if((!lastPA && !lastS) || (p.pa.length === 0)){
+    recs.push({icon:'📋',title:'Registra primeros datos',desc:'Agrega medición de PA y registro de sueño para obtener recomendaciones personalizadas.',tag:'info',tagLabel:'Pendiente',dot:'blue'});
     return recs;
   }
 
-  // ─ PA ─
-  if(lastPA){
-    const sis=lastPA.sis, dia=lastPA.dia;
+  // Recomendación según prioridad clínica (usando PROMEDIO)
+  if(priority && priority.level <= 1){
+    recs.push({icon:priority.emoji,title:`${priority.label} - ${priority.action}`,desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. ${priority.action}`,tag:priority.alertType === 'crisis' ? 'crisis' : (priority.alertType === 'danger' ? 'urgent' : 'warn'),tagLabel:priority.label,dot:priority.level === 0 ? 'red' : 'red'});
+  } else if(priority && priority.level === 2){
+    recs.push({icon:'📈',title:'HTA Grado 1 - Seguimiento',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Iniciar cambios: reducción de sodio, ejercicio regular, control de estrés.`,tag:'warn',tagLabel:'Seguimiento',dot:'orange'});
+  } else if(priority && priority.level === 3){
+    recs.push({icon:'📊',title:'Presión elevada - Prevención',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Reforzar hábitos saludables y monitoreo.`,tag:'info',tagLabel:'Prevención',dot:'blue'});
+  }
 
-    if(sis>180||dia>120){
-      recs.push({icon:'🚨',title:'Crisis hipertensiva — atención inmediata',desc:`PA actual de ${sis}/${dia} mmHg supera el umbral de crisis. Evalúa derivación a urgencias y revisión de medicación actual.`,tag:'urgent',tagLabel:'Urgente',dot:'red'});
-    } else if(sis>=140||dia>=90){
-      recs.push({icon:'⚠️',title:'Ajuste de medicación antihipertensiva',desc:`PA en rango de HTA grado 2 (${sis}/${dia} mmHg). Considera incrementar dosis o cambiar esquema. Medir 2× al día por 1 semana.`,tag:'urgent',tagLabel:'Prioritario',dot:'red'});
-      recs.push({icon:'🧂',title:'Restricción de sodio < 1.5 g/día',desc:'En hipertensión confirmada, reducir ingesta de sodio puede disminuir la sistólica hasta 8 mmHg.',tag:'warn',tagLabel:'Estilo de vida',dot:'orange'});
-    } else if(sis>=130||dia>=80){
-      recs.push({icon:'📈',title:'Monitoreo más frecuente',desc:`PA en HTA grado 1 (${sis}/${dia} mmHg). Medir al menos cada 2 días y registrar contexto (estrés, comidas, medicación).`,tag:'warn',tagLabel:'Seguimiento',dot:'orange'});
-    } else {
-      recs.push({icon:'✅',title:'Presión arterial en rango normal',desc:`Última PA: ${sis}/${dia} mmHg. Mantener hábitos actuales y continuar monitoreo mensual.`,tag:'ok',tagLabel:'Bien',dot:'green'});
-    }
+  // DETECCIÓN DE PICOS AISLADOS (promedio normal pero última medición es crisis)
+  if(lastPA && (lastPA.sis > 180 || lastPA.dia > 120) && avgPA && !(avgPA.sis > 180 || avgPA.dia > 120)){
+    recs.push({icon:'⚡🚨',title:'PICO HIPERTENSIVO AISLADO - Verificar',desc:`Última medición ${lastPA.sis}/${lastPA.dia} mmHg (crisis) pero el promedio es normal. Descartar error, dolor agudo, ansiedad o causa transitoria.`,tag:'warn',tagLabel:'Verificar',dot:'orange'});
+  }
 
-    // Variabilidad PA si hay ≥3 registros
-    if(p.pa.length>=3){
-      const recientes=p.pa.slice(-5).map(r=>r.sis);
-      const max=Math.max(...recientes), min=Math.min(...recientes);
-      if(max-min>20){
-        recs.push({icon:'📊',title:'Alta variabilidad en PA',desc:`Variación de ${max-min} mmHg en sistólica (últimos ${recientes.length} registros). Revisa consistencia en horario de medicación y factores desencadenantes.`,tag:'warn',tagLabel:'Variabilidad',dot:'orange'});
-      }
-    }
-
-    // Pulso alto
-    if(lastPA.pulso>100){
-      recs.push({icon:'💓',title:'Taquicardia en reposo',desc:`Pulso de ${lastPA.pulso} lpm. Descartar ansiedad, hipertiroidismo o efecto de medicamentos. Considera ECG si persiste.`,tag:'warn',tagLabel:'Pulso',dot:'orange'});
+  // Variabilidad PA
+  if(p.pa.length>=3){
+    const recientes=p.pa.slice(-5).map(r=>r.sis);
+    const max=Math.max(...recientes), min=Math.min(...recientes);
+    if(max-min>20){
+      recs.push({icon:'📊',title:'Alta variabilidad en PA',desc:`Variación de ${max-min} mmHg en sistólica. Revisa consistencia en horario de medicación.`,tag:'warn',tagLabel:'Variabilidad',dot:'orange'});
     }
   }
 
-  // ─ SUEÑO ─
+  if(lastPA && lastPA.pulso>100){
+    recs.push({icon:'💓',title:'Taquicardia en reposo',desc:`Pulso de ${lastPA.pulso} lpm. Descartar ansiedad, hipertiroidismo o efecto de medicamentos.`,tag:'warn',tagLabel:'Pulso',dot:'orange'});
+  }
+
+  // Sueño
   if(lastS){
     const h=calcH(lastS.dormir,lastS.despertar);
-    const cal=+lastS.cal;
-
-    if(h<5){
-      recs.push({icon:'😴',title:'Sueño severamente insuficiente',desc:`Solo ${h}h registradas anoche. El déficit severo puede elevar la PA sistólica 10–15 mmHg. Priorizar higiene del sueño como intervención primaria.`,tag:'urgent',tagLabel:'Crítico',dot:'red'});
-    } else if(h<6){
-      recs.push({icon:'🌙',title:'Aumentar duración del sueño',desc:`${h}h de sueño son insuficientes (recomendado: 7–9h). Establecer horario fijo y reducir exposición a pantallas 1h antes de dormir.`,tag:'warn',tagLabel:'Sueño',dot:'purple'});
-    } else if(h>=9){
-      recs.push({icon:'⏰',title:'Sueño excesivo — revisar causas',desc:`${h}h de sueño puede indicar depresión, hipotiroidismo o efecto sedante de medicamentos. Evalúa calidad y causas.`,tag:'info',tagLabel:'Exceso',dot:'blue'});
-    }
-
-    if(cal<=2){
-      recs.push({icon:'💤',title:'Calidad de sueño muy baja',desc:'Calidad reportada como mala o muy mala. Investiga ronquidos, apnea del sueño (especialmente si PA es alta), o dolor crónico nocturno.',tag:'warn',tagLabel:'Calidad',dot:'purple'});
-    }
-
-    if(lastS.caf>=4){
-      recs.push({icon:'☕',title:'Ingesta alta de cafeína',desc:`${lastS.caf} tazas registradas. Limitar cafeína después de las 14:00h y a máximo 2 tazas/día para mejorar calidad de sueño y PA.`,tag:'warn',tagLabel:'Cafeína',dot:'orange'});
-    }
-
-    if(lastS.estres>=8){
-      recs.push({icon:'🧘',title:'Estrés elevado — intervención necesaria',desc:`Estrés de ${lastS.estres}/10 reportado. Técnicas de relajación (respiración 4-7-8, meditación 10 min/día) pueden reducir PA y mejorar sueño.`,tag:'warn',tagLabel:'Estrés',dot:'orange'});
-    }
-
-    if(lastS.alc>=3){
-      recs.push({icon:'🍷',title:'Consumo de alcohol afecta el sueño',desc:`${lastS.alc} copas pueden fragmentar las fases profundas de sueño y elevar PA nocturna. Limitar a máximo 1 copa/día.`,tag:'info',tagLabel:'Alcohol',dot:'blue'});
-    }
+    if(h<5) recs.push({icon:'😴',title:'Sueño severamente insuficiente',desc:`${h}h - El déficit severo puede elevar la PA sistólica 10-15 mmHg.`,tag:'warn',tagLabel:'Crítico',dot:'red'});
+    else if(h<6) recs.push({icon:'🌙',title:'Aumentar duración del sueño',desc:`${h}h - Establecer horario fijo y reducir pantallas antes de dormir.`,tag:'info',tagLabel:'Sueño',dot:'purple'});
+    if(lastS.estres>=8) recs.push({icon:'🧘',title:'Estrés elevado',desc:`Estrés ${lastS.estres}/10 - Técnicas de relajación pueden reducir PA.`,tag:'info',tagLabel:'Estrés',dot:'orange'});
+    if(lastS.caf>=4) recs.push({icon:'☕',title:'Ingesta alta de cafeína',desc:`${lastS.caf} tazas. Limitar cafeína después de las 14:00h.`,tag:'info',tagLabel:'Cafeína',dot:'orange'});
   }
 
-  // ─ CORRELACIÓN sueño-PA ─
+  // Correlación sueño-PA
   if(p.pa.length>=3&&p.sueno.length>=3){
     const n=Math.min(p.pa.length,p.sueno.length,7);
     const pares=Array.from({length:n},(_,i)=>({h:calcH(p.sueno[i].dormir,p.sueno[i].despertar),sis:p.pa[i].sis}));
@@ -551,91 +555,60 @@ function genRecsPatient(p){
       const avgSisCortas=Math.round(noches_cortas.reduce((a,x)=>a+x.sis,0)/noches_cortas.length);
       const avgSisOk=Math.round(noches_ok.reduce((a,x)=>a+x.sis,0)/noches_ok.length);
       if(avgSisCortas-avgSisOk>5){
-        recs.push({icon:'🔗',title:'Patrón detectado: sueño corto → PA alta',desc:`Con noches <6h, la PA sistólica promedia ${avgSisCortas} mmHg; con ≥7h promedia ${avgSisOk} mmHg. Priorizar el sueño como intervención antihipertensiva.`,tag:'warn',tagLabel:'Correlación',dot:'purple'});
+        recs.push({icon:'🔗',title:'Patrón detectado: sueño corto → PA alta',desc:`Con noches <6h, PA sistólica ${avgSisCortas} mmHg; con ≥7h ${avgSisOk} mmHg.`,tag:'warn',tagLabel:'Correlación',dot:'purple'});
       }
     }
   }
 
-  // Recomendación de ejercicio si PA elevada y sin dx cardíaco
-  if(lastPA&&lastPA.sis>=130&&!(p.dx||'').toLowerCase().includes('insuf')){
-    recs.push({icon:'🏃',title:'Actividad física aeróbica regular',desc:'30 min de caminata rápida 5 días/semana puede reducir la PA sistólica hasta 7 mmHg. Iniciar de forma progresiva.',tag:'info',tagLabel:'Estilo de vida',dot:'blue'});
+  if(lastPA && lastPA.sis>=130 && !(p.dx||'').toLowerCase().includes('insuf')){
+    recs.push({icon:'🏃',title:'Actividad física aeróbica regular',desc:'30 min de caminata rápida 5 días/semana puede reducir la PA sistólica hasta 7 mmHg.',tag:'info',tagLabel:'Estilo de vida',dot:'blue'});
   }
 
-  // Medicación presente + PA sigue alta
-  if(lastPA&&lastPA.sis>=140&&p.med&&p.med.toLowerCase()!=='ninguna'){
-    recs.push({icon:'💊',title:'Revisar adherencia y eficacia del tratamiento',desc:`Paciente con medicación (${p.med}) y PA persistentemente alta. Verifica adherencia, horario de toma y posibles interacciones.`,tag:'urgent',tagLabel:'Medicación',dot:'red'});
+  if(avgPA && avgPA.sis>=140 && p.med && p.med.toLowerCase()!=='ninguna'){
+    recs.push({icon:'💊',title:'Revisar adherencia y eficacia del tratamiento',desc:`Paciente con medicación (${p.med}) y PA promedio alta (${avgPA.sis}/${avgPA.dia} mmHg).`,tag:'urgent',tagLabel:'Medicación',dot:'red'});
   }
 
   return recs;
 }
 
-// Recomendaciones globales del panel general
 function genRecsGlobal(){
   const recs=[];
-  const conPA=db.patients.filter(p=>p.pa.length>0);
-  const enCrisis=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>180||l.dia>120);});
-  const enHTA2=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=140||l.dia>=90)&&!(l.sis>180||l.dia>120);});
-  const enHTA1=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=130&&l.sis<140||l.dia>=80&&l.dia<90);});
-  const sinDatos=db.patients.filter(p=>p.pa.length===0);
-  const sinSueno=db.patients.filter(p=>p.sueno.length===0);
+  const patientsWithPriority = db.patients.map(p => {
+    const avg = getAverageBP(p);
+    const last = p.pa.at(-1);
+    const pa = avg || last;
+    const priority = pa ? getPriorityLevel(pa.sis, pa.dia) : null;
+    return { ...p, priority, hasPA: !!pa };
+  });
+  
+  const crisis = patientsWithPriority.filter(p => p.priority && p.priority.level === 0);
+  const hta2 = patientsWithPriority.filter(p => p.priority && p.priority.level === 1);
+  const hta1 = patientsWithPriority.filter(p => p.priority && p.priority.level === 2);
+  const elevada = patientsWithPriority.filter(p => p.priority && p.priority.level === 3);
+  const sinDatos = patientsWithPriority.filter(p => !p.hasPA);
+  const sinSueno = db.patients.filter(p => p.sueno.length === 0);
+  const conCrisisIndividual = db.patients.filter(p=>{const l=p.pa.at(-1);return l && (l.sis>180||l.dia>120);});
 
-  // Sueño promedio global
-  const conSueno=db.patients.filter(p=>p.sueno.length>0);
-  let avgSuenoGlobal=0;
-  if(conSueno.length>0){
-    avgSuenoGlobal=conSueno.reduce((a,p)=>{
-      const ul=p.sueno.at(-1);return a+calcH(ul.dormir,ul.despertar);
-    },0)/conSueno.length;
-  }
-
-  if(enCrisis.length>0){
-    recs.push({icon:'🚨',title:`${enCrisis.length} paciente(s) en crisis hipertensiva`,desc:`${enCrisis.map(p=>p.nombre.split(' ')[0]).join(', ')} tienen PA >180/120 mmHg. Requieren atención urgente e inmediata.`,tag:'urgent',tagLabel:'Urgente'});
-  }
-  if(enHTA2.length>0){
-    recs.push({icon:'⚠️',title:`${enHTA2.length} paciente(s) con HTA grado 2`,desc:`${enHTA2.map(p=>p.nombre.split(' ')[0]).join(', ')} presentan PA ≥140/90 mmHg. Revisar esquema de medicación y citar en los próximos 7 días.`,tag:'urgent',tagLabel:'Prioritario'});
-  }
-  if(enHTA1.length>0){
-    recs.push({icon:'📈',title:`${enHTA1.length} paciente(s) con presión elevada`,desc:`${enHTA1.map(p=>p.nombre.split(' ')[0]).join(', ')} en HTA grado 1. Reforzar cambios en estilo de vida y seguimiento quincenal.`,tag:'warn',tagLabel:'Seguimiento'});
-  }
-  if(sinDatos.length>0){
-    recs.push({icon:'📋',title:`${sinDatos.length} paciente(s) sin medición de PA`,desc:`${sinDatos.map(p=>p.nombre.split(' ')[0]).join(', ')} aún no tienen registro. Completar línea base para seguimiento adecuado.`,tag:'info',tagLabel:'Pendiente'});
-  }
-  if(sinSueno.length>0){
-    recs.push({icon:'🌙',title:`${sinSueno.length} paciente(s) sin registro de sueño`,desc:`Registrar el sueño es clave para identificar correlaciones con PA. Solicita el historial a ${sinSueno.map(p=>p.nombre.split(' ')[0]).join(', ')}.`,tag:'info',tagLabel:'Pendiente'});
-  }
-  if(avgSuenoGlobal>0&&avgSuenoGlobal<6.5){
-    recs.push({icon:'💤',title:'Promedio de sueño del grupo es bajo',desc:`El promedio de sueño es ${Math.round(avgSuenoGlobal*10)/10}h. Considera incluir educación sobre higiene del sueño en las consultas del grupo.`,tag:'warn',tagLabel:'Grupo'});
-  }
-  if(recs.length===0){
-    recs.push({icon:'✅',title:'Todos los pacientes en rango aceptable',desc:'No hay alertas críticas en el grupo. Mantener frecuencia de monitoreo y citas de seguimiento.',tag:'ok',tagLabel:'Bien'});
-  }
+  if(crisis.length) recs.push({icon:'🚨🚨',title:`${crisis.length} paciente(s) en CRISIS`,desc:`${crisis.map(p=>p.nombre.split(' ')[0]).join(', ')}: ATENCIÓN INMEDIATA.`,tag:'crisis',tagLabel:'CRISIS'});
+  if(hta2.length) recs.push({icon:'🚨',title:`${hta2.length} paciente(s) con HTA Grado 2`,desc:`${hta2.map(p=>p.nombre.split(' ')[0]).join(', ')}: Revisar esta semana.`,tag:'urgent',tagLabel:'Prioritario'});
+  if(hta1.length) recs.push({icon:'⚠️',title:`${hta1.length} paciente(s) con HTA Grado 1`,desc:`${hta1.map(p=>p.nombre.split(' ')[0]).join(', ')}: Cambios estilo de vida.`,tag:'warn',tagLabel:'Seguimiento'});
+  if(elevada.length) recs.push({icon:'📊',title:`${elevada.length} paciente(s) con presión elevada`,desc:`Prevención y refuerzo de hábitos saludables.`,tag:'info',tagLabel:'Prevención'});
+  if(sinDatos.length) recs.push({icon:'📋',title:`${sinDatos.length} paciente(s) sin medición`,desc:`Completar línea base.`,tag:'info',tagLabel:'Pendiente'});
+  if(sinSueno.length) recs.push({icon:'🌙',title:`${sinSueno.length} paciente(s) sin sueño`,desc:`Registrar sueño para correlación con PA.`,tag:'info',tagLabel:'Pendiente'});
+  if(recs.length===0) recs.push({icon:'✅',title:'Todos en rango normal',desc:'Mantener monitoreo y citas de seguimiento.',tag:'ok',tagLabel:'Bien'});
   return recs;
 }
 
 function renderRecCards(recs){
   if(!recs.length)return'';
-  const tagClass={urgent:'tag-urgent',warn:'tag-warn',info:'tag-info',ok:'tag-ok'};
-  return recs.map(r=>`
-    <div class="rec-card">
-      <div class="rec-icon">${r.icon}</div>
-      <div class="rec-body">
-        <div class="rec-title">${r.title}</div>
-        <div class="rec-desc">${r.desc}</div>
-        <span class="rec-tag ${tagClass[r.tag]||'tag-info'}">${r.tagLabel}</span>
-      </div>
-    </div>
-  `).join('');
+  const tagClass={crisis:'tag-crisis',urgent:'tag-urgent',warn:'tag-warn',info:'tag-info',ok:'tag-ok'};
+  return recs.map(r=>`<div class="rec-card"><div class="rec-icon">${r.icon}</div><div class="rec-body"><div class="rec-title">${r.title}</div><div class="rec-desc">${r.desc}</div><span class="rec-tag ${tagClass[r.tag]||'tag-info'}">${r.tagLabel}</span></div></div>`).join('');
 }
 
 function renderRecPatientList(recs){
-  if(!recs.length)return'<div class="no-data">Sin recomendaciones disponibles aún.</div>';
+  if(!recs.length)return'<div class="no-data">Sin recomendaciones disponibles.</div>';
   const dotClass={red:'dot-red',orange:'dot-orange',blue:'dot-blue',green:'dot-green',purple:'dot-purple'};
-  return`<div class="rec-list">${recs.map(r=>`
-    <div class="rec-item">
-      <div class="rec-item-dot ${dotClass[r.dot]||'dot-blue'}"></div>
-      <div class="rec-item-text"><strong>${r.title}.</strong> ${r.desc}</div>
-    </div>
-  `).join('')}</div>`;
+  return`<div class="rec-list">${recs.map(r=>`<div class="rec-item"><div class="rec-item-dot ${dotClass[r.dot]||'dot-blue'}"></div><div class="rec-item-text"><strong>${r.title}.</strong> ${r.desc}</div></div>`).join('')}</div>`;
 }
 
 // ════════════════════════════════
@@ -649,33 +622,37 @@ function tick(){
 tick();setInterval(tick,1000);
 
 // ════════════════════════════════
-//  SIDEBAR
+//  SIDEBAR - CON ORDEN POR PRIORIDAD
 // ════════════════════════════════
 function filterPatients(q){renderSidebar(q);}
 
 function renderSidebar(q=''){
   const list=document.getElementById('patient-list');
   const search=q.toLowerCase();
-  const filtered=db.patients.filter(p=>p.nombre.toLowerCase().includes(search)||p.exp.toLowerCase().includes(search));
+  let filtered=db.patients.filter(p=>p.nombre.toLowerCase().includes(search)||p.exp.toLowerCase().includes(search));
+  
+  // Calcular prioridad y ordenar (más urgente primero)
+  filtered = filtered.map(p => {
+    const avg = getAverageBP(p);
+    const last = p.pa.at(-1);
+    const pa = avg || last;
+    const priority = pa ? getPriorityLevel(pa.sis, pa.dia) : { level: 99, label: 'Sin datos', priorityClass: '', emoji: '📋' };
+    return { ...p, priority, displayPA: pa };
+  }).sort((a,b) => a.priority.level - b.priority.level);
+  
   document.getElementById('count-label').textContent=db.patients.length;
 
   const ovBtn=document.getElementById('nav-overview-btn');
-  if(ovBtn){
-    if(activePatientId===null)ovBtn.classList.add('active');
-    else ovBtn.classList.remove('active');
-  }
+  if(ovBtn) activePatientId===null ? ovBtn.classList.add('active') : ovBtn.classList.remove('active');
 
-  if(filtered.length===0){list.innerHTML=`<div class="no-data">Sin resultados</div>`;return;}
+  if(filtered.length===0){list.innerHTML='<div class="no-data">Sin resultados</div>';return;}
   list.innerHTML=filtered.map(p=>{
-    const lastPA=p.pa.at(-1);
-    const badgeHTML=lastPA
-      ?`<span class="pa-badge ${clsPA(lastPA.sis,lastPA.dia).cls}">${lastPA.sis}/${lastPA.dia}</span>`
-      :`<span class="pa-badge badge-gray">—</span>`;
+    const badgeHTML=p.displayPA ? `<span class="pa-badge ${clsPA(p.displayPA.sis,p.displayPA.dia).cls}">${p.displayPA.sis}/${p.displayPA.dia}</span>` : `<span class="pa-badge badge-gray">—</span>`;
     const isActive=p.id===activePatientId;
-    return`<div class="patient-item${isActive?' active':''}" onclick="selectPatient(${p.id})">
+    return`<div class="patient-item ${isActive?' active':''} ${p.priority.priorityClass}" onclick="selectPatient(${p.id})" title="Prioridad: ${p.priority.label} - ${p.priority.action}">
       <div class="avatar" style="background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
       <div class="patient-info">
-        <div class="patient-name">${p.nombre}</div>
+        <div class="patient-name">${p.nombre} ${p.priority.emoji}</div>
         <div class="patient-meta">${p.edad} años · ${p.exp}</div>
       </div>
       ${badgeHTML}
@@ -684,7 +661,7 @@ function renderSidebar(q=''){
 }
 
 // ════════════════════════════════
-//  OVERVIEW
+//  OVERVIEW - CON GRÁFICO DE PRIORIDAD Y TABLA ORDENADA
 // ════════════════════════════════
 function goOverview(){
   activePatientId=null;
@@ -698,128 +675,196 @@ function renderOverview(){
   document.getElementById('topbar-patient').style.display='none';
   destroyCharts();
 
-  const total=db.patients.length;
-  const conPA=db.patients.filter(p=>p.pa.length>0);
-  const conSueno=db.patients.filter(p=>p.sueno.length>0);
-  const enAlerta=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=130||l.dia>=80);});
-  const enCrisis=conPA.filter(p=>{const l=p.pa.at(-1);return l&&(l.sis>=140||l.dia>=90);});
+  // Calcular prioridad para todos los pacientes y ordenar
+  const patientsWithPriority = db.patients.map(p => {
+    const avg = getAverageBP(p);
+    const last = p.pa.at(-1);
+    const pa = avg || last;
+    const priority = pa ? getPriorityLevel(pa.sis, pa.dia) : null;
+    return { ...p, priority, displayPA: pa, lastPA: last };
+  }).sort((a,b) => (a.priority?.level || 99) - (b.priority?.level || 99));
 
+  const crisis = patientsWithPriority.filter(p => p.priority?.level === 0);
+  const hta2 = patientsWithPriority.filter(p => p.priority?.level === 1);
+  const hta1 = patientsWithPriority.filter(p => p.priority?.level === 2);
+  const elevada = patientsWithPriority.filter(p => p.priority?.level === 3);
+  const normal = patientsWithPriority.filter(p => p.priority?.level === 4);
+  const sinDatos = patientsWithPriority.filter(p => !p.displayPA);
+  const conSueno = db.patients.filter(p=>p.sueno.length>0);
+  const conCrisisIndividual = db.patients.filter(p=>{const l=p.pa.at(-1);return l && (l.sis>180||l.dia>120);});
+
+  // Alertas visuales según prioridad
   let alertsHtml='';
-  if(enCrisis.length>0)alertsHtml+=`<div class="alert alert-danger">🚨 <div><strong>${enCrisis.length} paciente(s) con hipertensión grado 2 o superior:</strong> ${enCrisis.map(p=>p.nombre).join(', ')}. Se recomienda atención prioritaria.</div></div>`;
-  if(enAlerta.length>enCrisis.length){const mod=enAlerta.filter(p=>!enCrisis.includes(p));if(mod.length>0)alertsHtml+=`<div class="alert alert-warn">⚠️ <div><strong>${mod.length} paciente(s) con presión elevada:</strong> ${mod.map(p=>p.nombre).join(', ')}.</div></div>`;}
+  if(crisis.length) alertsHtml+=`<div class="alert alert-crisis">🚨🚨 <div><strong>CRISIS HIPERTENSIVA - Atención inmediata:</strong> ${crisis.map(p=>p.nombre).join(', ')}. Derivar a urgencias.</div></div>`;
+  if(hta2.length) alertsHtml+=`<div class="alert alert-danger">🚨 <div><strong>HTA Grado 2 - Prioridad alta:</strong> ${hta2.map(p=>p.nombre).join(', ')}. Revisar esta semana.</div></div>`;
+  if(hta1.length) alertsHtml+=`<div class="alert alert-warn">⚠️ <div><strong>HTA Grado 1 - Seguimiento:</strong> ${hta1.map(p=>p.nombre).join(', ')}. Iniciar cambios en estilo de vida.</div></div>`;
+  if(elevada.length) alertsHtml+=`<div class="alert alert-info">📊 <div><strong>Presión elevada - Prevención:</strong> ${elevada.map(p=>p.nombre).join(', ')}. Reforzar hábitos saludables.</div></div>`;
+  
+  // Detección de picos aislados a nivel global
+  const picosAislados = conCrisisIndividual.filter(p => p.priority?.level !== 0);
+  if(picosAislados.length > 0){
+    alertsHtml+=`<div class="alert alert-warn">⚡🚨 <div><strong>Picos hipertensivos aislados detectados:</strong> ${picosAislados.map(p=>p.nombre).join(', ')} tienen PA >180/120 en su última lectura, pero su promedio es normal. Verificar.</div></div>`;
+  }
 
-  const rows=db.patients.map(p=>{
-    const lPA=p.pa.at(-1);const lS=p.sueno.at(-1);
+  // Tabla ordenada por prioridad (ya está ordenada)
+  const rows=patientsWithPriority.map(p=>{
+    const priority = p.priority || { emoji: '📋', label: 'Sin datos', bgClass: '' };
+    const lS=p.sueno.at(-1);
     const h=lS?calcH(lS.dormir,lS.despertar):null;
-    const c=lPA?clsPA(lPA.sis,lPA.dia):{label:'—',cls:'badge-gray',emoji:''};
-    const cs=h?clsH(h):{label:'—',cls:'badge-gray'};
-    return`<tr style="cursor:pointer" onclick="selectPatient(${p.id})">
-      <td><div style="display:flex;align-items:center;gap:.6rem">
-        <div class="avatar" style="width:28px;height:28px;font-size:.65rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
-        <div><div style="font-weight:500;font-size:.82rem">${p.nombre}</div><div style="font-size:.7rem;color:var(--muted)">${p.exp}</div></div>
-      </div></td>
+    const crisisIndividual = (p.lastPA && (p.lastPA.sis>180||p.lastPA.dia>120) && p.priority?.level !== 0) ? '⚡' : '';
+    return`<tr style="cursor:pointer" class="${priority.bgClass}" onclick="selectPatient(${p.id})">
+      <td><div style="display:flex;align-items:center;gap:.6rem"><div class="avatar" style="width:28px;height:28px;font-size:.65rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div><div><div style="font-weight:500;font-size:.82rem">${p.nombre} ${priority.emoji} ${crisisIndividual}</div><div style="font-size:.7rem;color:var(--muted)">${p.exp}</div></div></div></td>
       <td>${p.edad} · ${p.sexo}</td>
-      <td>${lPA?`<strong>${lPA.sis}/${lPA.dia}</strong>`:'—'}</td>
-      <td>${lPA?lPA.pulso:'—'}</td>
-      <td>${lPA?`<span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span>`:'<span class="status-pill badge-gray">Sin datos</span>'}</td>
+      <td>${p.displayPA?`<strong>${p.displayPA.sis}/${p.displayPA.dia}</strong>`:'—'} <span class="priority-badge prio-${priority.color}">${priority.label}</span></td>
+      <td>${p.lastPA?p.lastPA.pulso:'—'}</td>
       <td>${h?`${h}h`:'—'}</td>
       <td>${lS?stars(lS.cal):'—'}</td>
-      <td>${h?`<span class="status-pill ${cs.cls}">${cs.label}</span>`:'<span class="status-pill badge-gray">Sin datos</span>'}</td>
-      <td><span style="font-size:.72rem;color:var(--muted)">${lPA?lPA.fecha:'—'}</span></td>
+      <td><span style="font-size:.72rem;color:var(--muted)">${p.lastPA?p.lastPA.fecha:'—'}</span>
     </tr>`;
   }).join('');
 
-  // Recomendaciones globales
   const recsGlobal=genRecsGlobal();
-  const recGlobalHtml=`
-    <div class="rec-section">
-      <div class="rec-section-title">🧠 Recomendaciones generales del grupo</div>
-      <div class="rec-grid">${renderRecCards(recsGlobal)}</div>
-    </div>
-  `;
+  const recGlobalHtml=`<div class="rec-section"><div class="rec-section-title">🧠 Recomendaciones clínicas del grupo</div><div class="rec-grid">${renderRecCards(recsGlobal)}</div></div>`;
 
-  // Recomendaciones por paciente individuales en overview
-  const recsPorPaciente=db.patients.map(p=>{
-    const recs=genRecsPatient(p);
-    const tagClass={urgent:'tag-urgent',warn:'tag-warn',info:'tag-info',ok:'tag-ok'};
-    const items=recs.slice(0,3).map(r=>`
-      <div class="rec-item">
-        <div class="rec-item-dot dot-${r.dot}"></div>
-        <div class="rec-item-text"><strong>${r.title}:</strong> ${r.desc.length>100?r.desc.slice(0,97)+'...':r.desc}</div>
-      </div>
-    `).join('');
-    const hasCrit=recs.some(r=>r.tag==='urgent');
-    const hasWarn=recs.some(r=>r.tag==='warn');
-    const borderColor=hasCrit?'rgba(255,107,107,.25)':hasWarn?'rgba(255,169,77,.2)':'rgba(255,255,255,.06)';
-    return`<div style="background:var(--s1);border:1px solid ${borderColor};border-radius:var(--r2);padding:1rem 1.2rem;cursor:pointer;transition:border-color .2s" onclick="selectPatient(${p.id})">
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem">
-        <div class="avatar" style="width:30px;height:30px;font-size:.7rem;background:${p.color}22;color:${p.color}">${initials(p.nombre)}</div>
-        <div>
-          <div style="font-size:.82rem;font-weight:500">${p.nombre}</div>
-          <div style="font-size:.7rem;color:var(--muted)">${p.exp} · Haz clic para ver detalle</div>
-        </div>
-        ${hasCrit?'<span class="rec-tag tag-urgent" style="margin-left:auto">Urgente</span>':hasWarn?'<span class="rec-tag tag-warn" style="margin-left:auto">Atención</span>':'<span class="rec-tag tag-ok" style="margin-left:auto">OK</span>'}
-      </div>
-      <div class="rec-list">${items}</div>
-    </div>`;
-  }).join('');
+  // DATOS PARA GRÁFICAS
+  const names = db.patients.map(p => p.nombre.split(' ')[0]);
+  const sistolicas = db.patients.map(p => {
+    const avg = getAverageBP(p);
+    return avg ? avg.sis : (p.pa.at(-1)?.sis || 0);
+  });
+  const diastolicas = db.patients.map(p => {
+    const avg = getAverageBP(p);
+    return avg ? avg.dia : (p.pa.at(-1)?.dia || 0);
+  });
+  const pulsos = db.patients.map(p => p.pa.at(-1)?.pulso || 0);
+  const avgSueno = db.patients.map(p => {
+    if(!p.sueno.length) return 0;
+    return Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
+  });
+  const priorityCounts = [crisis.length, hta2.length, hta1.length, elevada.length, normal.length, sinDatos.length];
+  const sexoCounts = [db.patients.filter(p=>p.sexo==='F').length, db.patients.filter(p=>p.sexo==='M').length, db.patients.filter(p=>p.sexo==='O').length];
+  const rangoEdades = [
+    db.patients.filter(p=>p.edad<30).length,
+    db.patients.filter(p=>p.edad>=30 && p.edad<50).length,
+    db.patients.filter(p=>p.edad>=50 && p.edad<65).length,
+    db.patients.filter(p=>p.edad>=65).length
+  ];
 
   document.getElementById('main-content').innerHTML=`
     ${alertsHtml}
     <div class="overview-grid">
-      <div class="ov-card"><div class="ov-num">${total}</div><div class="ov-lbl">Pacientes</div></div>
-      <div class="ov-card"><div class="ov-num" style="color:var(--green)">${conPA.length}</div><div class="ov-lbl">Con medición PA</div></div>
-      <div class="ov-card"><div class="ov-num" style="color:var(--purple)">${conSueno.length}</div><div class="ov-lbl">Con registro sueño</div></div>
-      <div class="ov-card"><div class="ov-num" style="color:var(--red)">${enCrisis.length}</div><div class="ov-lbl">En alerta crítica</div></div>
-      <div class="ov-card"><div class="ov-num" style="color:var(--orange)">${enAlerta.length-enCrisis.length}</div><div class="ov-lbl">Presión elevada</div></div>
+      <div class="ov-card" style="border-left:3px solid #ff3b3b"><div class="ov-num" style="color:#ff6b6b">${crisis.length}</div><div class="ov-lbl">CRISIS</div></div>
+      <div class="ov-card" style="border-left:3px solid #ff6b6b"><div class="ov-num" style="color:#ffa94d">${hta2.length}</div><div class="ov-lbl">HTA Grado 2</div></div>
+      <div class="ov-card" style="border-left:3px solid #ffa94d"><div class="ov-num" style="color:#fde68a">${hta1.length}</div><div class="ov-lbl">HTA Grado 1</div></div>
+      <div class="ov-card" style="border-left:3px solid #fde68a"><div class="ov-num" style="color:#93c5fd">${elevada.length}</div><div class="ov-lbl">Elevada</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--green)">${normal.length}</div><div class="ov-lbl">Normal</div></div>
+      <div class="ov-card"><div class="ov-num" style="color:var(--purple)">${conSueno.length}</div><div class="ov-lbl">Con sueño</div></div>
     </div>
 
     ${recGlobalHtml}
 
-    <div class="rec-section">
-      <div class="rec-section-title">👤 Resumen de alertas por paciente</div>
-      <div class="rec-grid">${recsPorPaciente||'<div class="no-data">Agrega pacientes para comenzar</div>'}</div>
+    <!-- FILA 1: Prioridad y Sueño -->
+    <div class="two-col">
+      <div class="chart-card"><h3>📊 Distribución por prioridad clínica</h3><div class="chart-wrap"><canvas id="ov-chart-priority"></canvas></div></div>
+      <div class="chart-card"><h3>😴 Sueño promedio por paciente</h3><div class="chart-wrap"><canvas id="ov-chart-sueno"></canvas></div></div>
     </div>
 
+    <!-- FILA 2: PA Sistólica y Diastólica -->
+    <div class="two-col">
+      <div class="chart-card"><h3>❤️ Presión sistólica (promedio por paciente)</h3><div class="chart-wrap"><canvas id="ov-chart-sis"></canvas></div></div>
+      <div class="chart-card"><h3>💙 Presión diastólica (promedio por paciente)</h3><div class="chart-wrap"><canvas id="ov-chart-dia"></canvas></div></div>
+    </div>
+
+    <!-- FILA 3: Pulso y Edades -->
+    <div class="two-col">
+      <div class="chart-card"><h3>💓 Frecuencia cardíaca (última medición)</h3><div class="chart-wrap"><canvas id="ov-chart-pulso"></canvas></div></div>
+      <div class="chart-card"><h3>🎂 Distribución por edades</h3><div class="chart-wrap"><canvas id="ov-chart-edad"></canvas></div></div>
+    </div>
+
+    <!-- FILA 4: Sexo y Comparativa PA -->
+    <div class="two-col">
+      <div class="chart-card"><h3>⚥ Distribución por sexo</h3><div class="chart-wrap"><canvas id="ov-chart-sexo"></canvas></div></div>
+      <div class="chart-card"><h3>📈 Comparativa Sistólica vs Diastólica</h3><div class="chart-wrap"><canvas id="ov-chart-compare"></canvas></div></div>
+    </div>
+
+    <!-- Tabla de pacientes -->
     <div class="chart-card">
-      <h3>Todos los pacientes — resumen clínico</h3>
+      <h3>📋 Pacientes ordenados por prioridad clínica (los más urgentes primero)</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Paciente</th><th>Edad/Sexo</th><th>PA (mmHg)</th><th>Pulso</th><th>Estado PA</th><th>Sueño</th><th>Calidad</th><th>Estado sueño</th><th>Última medición</th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="9" class="no-data">Agrega pacientes para comenzar</td></tr>'}</tbody>
+          <thead><tr><th>Paciente</th><th>Edad/Sexo</th><th>PA / Prioridad</th><th>Pulso</th><th>Sueño</th><th>Calidad</th><th>Última fecha</th></tr></thead>
+          <tbody>${rows || '<tr><td colspan="7" class="no-data">Agrega pacientes</td></tr>'}</tbody>
         </table>
       </div>
     </div>
-
-    <div class="two-col">
-      <div class="chart-card"><h3>Distribución PA sistólica</h3><div class="chart-wrap"><canvas id="ov-chart-pa"></canvas></div></div>
-      <div class="chart-card"><h3>Sueño promedio por paciente</h3><div class="chart-wrap"><canvas id="ov-chart-sueno"></canvas></div></div>
-    </div>
   `;
 
-  const names=db.patients.map(p=>p.nombre.split(' ')[0]);
-  const sisCurrent=db.patients.map(p=>p.pa.at(-1)?.sis||0);
-  const colorsPA=sisCurrent.map(s=>s>=140?'#ff6b6b':s>=130?'#ffa94d':s>=120?'#fde68a':'#69db7c');
-  const avgSueno=db.patients.map(p=>{
-    if(!p.sueno.length)return 0;
-    return Math.round(p.sueno.reduce((a,r)=>a+calcH(r.dormir,r.despertar),0)/p.sueno.length*10)/10;
-  });
-  const colorsSueno=avgSueno.map(h=>h>=7?'#c084fc':h>=6?'#ffa94d':'#ff6b6b');
-
+  // Renderizar todas las gráficas
   setTimeout(()=>{
-    const ctx1=document.getElementById('ov-chart-pa')?.getContext('2d');
-    if(ctx1)chartInstances['ov-pa']=new Chart(ctx1,{type:'bar',data:{labels:names,datasets:[{data:sisCurrent,backgroundColor:colorsPA,borderRadius:6,borderSkipped:false}]},options:barOpts('mmHg')});
-    const ctx2=document.getElementById('ov-chart-sueno')?.getContext('2d');
-    if(ctx2)chartInstances['ov-su']=new Chart(ctx2,{type:'bar',data:{labels:names,datasets:[{data:avgSueno,backgroundColor:colorsSueno,borderRadius:6,borderSkipped:false}]},options:barOpts('horas')});
-  },50);
-}
+    // Gráfica 1: Prioridad
+    const ctxPriority = document.getElementById('ov-chart-priority')?.getContext('2d');
+    if(ctxPriority) chartInstances['ov-priority'] = new Chart(ctxPriority, {
+      type: 'bar',
+      data: { labels: ['Crisis','HTA G2','HTA G1','Elevada','Normal','Sin datos'], datasets: [{ data: priorityCounts, backgroundColor: ['#ff3b3b','#ff6b6b','#ffa94d','#fde68a','#69db7c','#7d8590'], borderRadius: 8 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 10 } } } } }
+    });
 
+    // Gráfica 2: Sueño promedio
+    const ctxSueno = document.getElementById('ov-chart-sueno')?.getContext('2d');
+    if(ctxSueno) chartInstances['ov-su'] = new Chart(ctxSueno, {
+      type: 'bar', data: { labels: names, datasets: [{ data: avgSueno, backgroundColor: '#c084fc', borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} horas` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
+    });
+
+    // Gráfica 3: Sistólica
+    const ctxSis = document.getElementById('ov-chart-sis')?.getContext('2d');
+    if(ctxSis) chartInstances['ov-sis'] = new Chart(ctxSis, {
+      type: 'bar', data: { labels: names, datasets: [{ data: sistolicas, backgroundColor: sistolicas.map(s => s >= 140 ? '#ff6b6b' : s >= 130 ? '#ffa94d' : s >= 120 ? '#fde68a' : '#69db7c'), borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} mmHg` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
+    });
+
+    // Gráfica 4: Diastólica
+    const ctxDia = document.getElementById('ov-chart-dia')?.getContext('2d');
+    if(ctxDia) chartInstances['ov-dia'] = new Chart(ctxDia, {
+      type: 'bar', data: { labels: names, datasets: [{ data: diastolicas, backgroundColor: diastolicas.map(d => d >= 90 ? '#ff6b6b' : d >= 80 ? '#ffa94d' : d >= 70 ? '#fde68a' : '#69db7c'), borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} mmHg` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
+    });
+
+    // Gráfica 5: Pulso
+    const ctxPulso = document.getElementById('ov-chart-pulso')?.getContext('2d');
+    if(ctxPulso) chartInstances['ov-pulso'] = new Chart(ctxPulso, {
+      type: 'bar', data: { labels: names, datasets: [{ data: pulsos, backgroundColor: pulsos.map(p => p > 100 ? '#ff6b6b' : p > 90 ? '#ffa94d' : p > 60 ? '#69db7c' : '#74c0fc'), borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} lpm` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
+    });
+
+    // Gráfica 6: Distribución por edades (pastel)
+    const ctxEdad = document.getElementById('ov-chart-edad')?.getContext('2d');
+    if(ctxEdad) chartInstances['ov-edad'] = new Chart(ctxEdad, {
+      type: 'pie', data: { labels: ['<30 años', '30-49 años', '50-64 años', '≥65 años'], datasets: [{ data: rangoEdades, backgroundColor: ['#74c0fc', '#c084fc', '#ffa94d', '#ff6b6b'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#7d8590', font: { size: 10 } } } } }
+    });
+
+    // Gráfica 7: Sexo (dona)
+    const ctxSexo = document.getElementById('ov-chart-sexo')?.getContext('2d');
+    if(ctxSexo) chartInstances['ov-sexo'] = new Chart(ctxSexo, {
+      type: 'doughnut', data: { labels: ['Femenino', 'Masculino', 'Otro'], datasets: [{ data: sexoCounts, backgroundColor: ['#f472b6', '#74c0fc', '#c084fc'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#7d8590', font: { size: 10 } } } } }
+    });
+
+    // Gráfica 8: Comparativa Sistólica vs Diastólica (línea)
+    const ctxCompare = document.getElementById('ov-chart-compare')?.getContext('2d');
+    if(ctxCompare) chartInstances['ov-compare'] = new Chart(ctxCompare, {
+      type: 'line', data: { labels: names, datasets: [{ label: 'Sistólica (mmHg)', data: sistolicas, borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,.1)', fill: true, tension: 0.3 }, { label: 'Diastólica (mmHg)', data: diastolicas, borderColor: '#74c0fc', backgroundColor: 'rgba(116,192,252,.1)', fill: true, tension: 0.3 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: i => `${i.dataset.label}: ${i.raw} mmHg` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
+    });
+  }, 100);
+}
 function barOpts(unit){
   return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`${i.raw} ${unit}`}}},scales:{x:{ticks:{color:'#7d8590',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7d8590',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}};
 }
 
 // ════════════════════════════════
-//  SELECCIONAR PACIENTE
+//  SELECCIONAR PACIENTE (actualizado)
 // ════════════════════════════════
 function selectPatient(id){
   activePatientId=id;
@@ -838,37 +883,41 @@ function renderPatient(){
   document.getElementById('topbar-meta').textContent=`${p.edad} años · ${p.exp} · ${p.dx||'Sin diagnóstico'}`;
   destroyCharts();
 
-  const lastPA=p.pa.at(-1);
-  const lastS=p.sueno.at(-1);
-  const c=lastPA?clsPA(lastPA.sis,lastPA.dia):{label:'Sin datos',cls:'badge-gray',emoji:''};
-  const h=lastS?calcH(lastS.dormir,lastS.despertar):null;
-  const cs=h?clsH(h):{label:'Sin datos',cls:'badge-gray'};
+  const avgPA = getAverageBP(p);
+  const lastPA = p.pa.at(-1);
+  const displayPA = avgPA || lastPA;
+  const priority = displayPA ? getPriorityLevel(displayPA.sis, displayPA.dia) : null;
+  const lastS = p.sueno.at(-1);
+  const h = lastS ? calcH(lastS.dormir,lastS.despertar) : null;
 
   let alerts='';
-  if(lastPA&&(lastPA.sis>=140||lastPA.dia>=90))alerts+=`<div class="alert alert-danger">🚨 Última PA: <strong>${lastPA.sis}/${lastPA.dia} mmHg</strong> — Hipertensión. Evalúa urgentemente.</div>`;
-  else if(lastPA&&(lastPA.sis>=130||lastPA.dia>=80))alerts+=`<div class="alert alert-warn">⚠️ Presión ligeramente elevada (${lastPA.sis}/${lastPA.dia} mmHg). Monitoreo frecuente.</div>`;
-  if(h&&h<6)alerts+=`<div class="alert alert-warn">🌙 Sueño insuficiente anoche: <strong>${h}h</strong>. El sueño corto puede elevar la PA.</div>`;
+  if(priority && priority.level === 0) alerts+=`<div class="alert alert-crisis">${priority.emoji} <div><strong>${priority.label} - ${priority.action}</strong><br>PA ${displayPA.sis}/${displayPA.dia} mmHg. Derivar a urgencias o consulta inmediata.</div></div>`;
+  else if(priority && priority.level === 1) alerts+=`<div class="alert alert-danger">${priority.emoji} <div><strong>${priority.label} - ${priority.action}</strong><br>PA ${displayPA.sis}/${displayPA.dia} mmHg. Programar cita esta semana.</div></div>`;
+  else if(priority && priority.level === 2) alerts+=`<div class="alert alert-warn">${priority.emoji} <div><strong>${priority.label} - ${priority.action}</strong><br>PA ${displayPA.sis}/${displayPA.dia} mmHg. Iniciar cambios en estilo de vida.</div></div>`;
+  else if(priority && priority.level === 3) alerts+=`<div class="alert alert-info">📊 <div><strong>Presión elevada - Prevención</strong><br>PA ${displayPA.sis}/${displayPA.dia} mmHg. Reforzar hábitos saludables.</div></div>`;
+  
+  // DETECCIÓN DE PICO AISLADO
+  if(lastPA && (lastPA.sis>180||lastPA.dia>120) && priority && priority.level !== 0){
+    alerts+=`<div class="alert alert-warn">⚡🚨 <div><strong>Pico hipertensivo aislado</strong><br>Última medición: ${lastPA.sis}/${lastPA.dia} mmHg (crisis) pero el promedio es normal. Descartar error o causa transitoria.</div></div>`;
+  }
+  
+  if(h&&h<6) alerts+=`<div class="alert alert-info">🌙 <div>Sueño insuficiente anoche: <strong>${h}h</strong>. El sueño corto puede elevar la PA.</div></div>`;
 
-  // Recomendaciones del paciente
   const recsP=genRecsPatient(p);
-  const recHtml=`
-    <div class="rec-patient-block">
-      <div class="rec-patient-header"><span>🧠 Recomendaciones personalizadas para ${p.nombre.split(' ')[0]}</span></div>
-      ${renderRecPatientList(recsP)}
-    </div>
-  `;
+  const recHtml=`<div class="rec-patient-block"><div class="rec-patient-header"><span>🧠 Recomendaciones clínicas</span></div>${renderRecPatientList(recsP)}</div>`;
 
   const subTabContent={
     perfil:`
       ${alerts}
       <div class="cards-row">
-        <div class="card"><div class="card-label">Sistólica</div><div class="card-val" style="color:var(--red)">${lastPA?lastPA.sis:'—'}</div><div class="card-unit">mmHg</div><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></div>
-        <div class="card"><div class="card-label">Diastólica</div><div class="card-val" style="color:var(--orange)">${lastPA?lastPA.dia:'—'}</div><div class="card-unit">mmHg</div></div>
-        <div class="card"><div class="card-label">Pulso</div><div class="card-val" style="color:var(--blue)">${lastPA?lastPA.pulso:'—'}</div><div class="card-unit">lpm</div></div>
-        <div class="card"><div class="card-label">Sueño anoche</div><div class="card-val" style="color:var(--purple)">${h||'—'}</div><div class="card-unit">${h?'horas':''}</div><span class="status-pill ${cs.cls}">${cs.label}</span></div>
+        <div class="card"><div class="card-label">Sistólica ${avgPA ? '(promedio)' : '(última)'}</div><div class="card-val" style="color:var(--red)">${displayPA?displayPA.sis:'—'}</div><div class="card-unit">mmHg${avgPA?` · ${avgPA.count} registros`:''}</div>${priority ? `<span class="status-pill badge-${priority.color === 'crisis' ? 'danger' : priority.color}">${priority.emoji} ${priority.label}</span>` : ''}</div>
+        <div class="card"><div class="card-label">Diastólica</div><div class="card-val" style="color:var(--orange)">${displayPA?displayPA.dia:'—'}</div><div class="card-unit">mmHg</div></div>
+        <div class="card"><div class="card-label">Pulso (último)</div><div class="card-val" style="color:var(--blue)">${lastPA?lastPA.pulso:'—'}</div><div class="card-unit">lpm</div></div>
+        <div class="card"><div class="card-label">Sueño anoche</div><div class="card-val" style="color:var(--purple)">${h||'—'}</div><div class="card-unit">horas</div></div>
         <div class="card"><div class="card-label">Registros PA</div><div class="card-val" style="color:var(--teal)">${p.pa.length}</div></div>
         <div class="card"><div class="card-label">Registros sueño</div><div class="card-val" style="color:var(--yellow)">${p.sueno.length}</div></div>
       </div>
+      ${avgPA ? `<div class="alert alert-info" style="font-size:.7rem">ℹ️ El estado de PA se basa en el PROMEDIO de los últimos 7 días (${avgPA.count} mediciones). Se muestran alertas separadas si la última medición individual es crítica.</div>` : ''}
       <div class="two-col">
         <div class="chart-card"><h3>Presión arterial — últimos registros</h3><div class="chart-wrap"><canvas id="ch-pa"></canvas></div></div>
         <div class="chart-card"><h3>Sueño — últimos registros</h3><div class="chart-wrap"><canvas id="ch-su"></canvas></div></div>
@@ -896,19 +945,14 @@ function renderPatient(){
     pa:renderTabPA(p),
     sueno:renderTabSueno(p),
     correlacion:renderTabCorr(p),
-    recomendaciones:`
-      <div class="rec-section">
-        <div class="rec-section-title">🧠 Recomendaciones clínicas para ${p.nombre.split(' ')[0]}</div>
-        <div class="rec-grid">${renderRecCards(recsP)}</div>
-      </div>
-    `,
+    recomendaciones:`<div class="rec-section"><div class="rec-section-title">🧠 Recomendaciones clínicas para ${p.nombre.split(' ')[0]}</div><div class="rec-grid">${renderRecCards(recsP)}</div></div>`,
   };
 
   document.getElementById('main-content').innerHTML=`
     <div class="profile-header">
       <div class="profile-avatar" style="background:${p.color}22;color:${p.color};font-size:1.1rem">${initials(p.nombre)}</div>
       <div class="profile-info">
-        <h2>${p.nombre}</h2>
+        <h2>${p.nombre} ${priority ? priority.emoji : ''}</h2>
         <p>${p.edad} años · ${p.sexo} · ${p.exp}${p.dx?` · ${p.dx}`:''}</p>
       </div>
       <div class="profile-actions">
@@ -932,7 +976,7 @@ function renderPatient(){
 function switchSubTab(t){activeSubTab=t;renderPatient();}
 
 // ════════════════════════════════
-//  SUB-TABS PACIENTE
+//  SUB-TABS PACIENTE (sin cambios en la estructura)
 // ════════════════════════════════
 function renderTabPA(p){
   if(!p.pa.length)return`<div class="no-data">Este paciente aún no tiene mediciones de presión arterial.<br><button class="btn-primary" style="margin-top:.75rem" onclick="openModalPA()">➕ Agregar primera medición</button></div>`;
@@ -940,18 +984,18 @@ function renderTabPA(p){
   const rows=[...p.pa].map((r,i)=>({r,realIdx:i})).reverse().map(({r,realIdx})=>{
     const c=clsPA(r.sis,r.dia);
     return`<tr>
-      <td>${r.fecha} ${r.hora}</td>
+      <td>${r.fecha} ${r.hora}</div></td>
       <td><strong>${r.sis}</strong></td>
-      <td><strong>${r.dia}</strong></td>
-      <td>${r.pulso}</td>
-      <td>${r.contexto}</td>
-      <td>${r.brazo}</td>
-      <td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></td>
-      <td style="color:var(--muted);font-size:.75rem;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</td>
+      <td><strong>${r.dia}</strong></div></td>
+      <td>${r.pulso}</div></td>
+      <td>${r.contexto}</div></td>
+      <td>${r.brazo}</div></td>
+      <td><span class="status-pill ${c.cls}">${c.emoji} ${c.label}</span></div></td>
+      <td style="color:var(--muted);font-size:.75rem;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</div></td>
       <td><div class="row-actions">
         <button class="btn-edit-row" onclick="openEditPA(${realIdx})">✏️ Editar</button>
         <button class="btn-del-row" onclick="quickDeletePA(${realIdx})">✕</button>
-      </div></td>
+      </div></div></td>
     </tr>`;
   }).join('');
   const avg=Math.round(p.pa.reduce((a,r)=>a+r.sis,0)/total);
@@ -970,18 +1014,18 @@ function renderTabSueno(p){
   const rows=[...p.sueno].map((r,i)=>({r,realIdx:i})).reverse().map(({r,realIdx})=>{
     const h=calcH(r.dormir,r.despertar);const c=clsH(h);
     return`<tr>
-      <td>${r.fecha}</td>
-      <td><span class="status-pill ${c.cls}">${h}h</span></td>
-      <td>${r.dormir}</td>
-      <td>${r.despertar}</td>
-      <td>${stars(r.cal)}</td>
-      <td>${r.estres}/10</td>
-      <td>${r.caf} ☕</td>
-      <td style="color:var(--muted);font-size:.75rem;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</td>
+      <td>${r.fecha}</div></td>
+      <td><span class="status-pill ${c.cls}">${h}h</span></div></td>
+      <td>${r.dormir}</div></td>
+      <td>${r.despertar}</div></td>
+      <td>${stars(r.cal)}</div></td>
+      <td>${r.estres}/10</div></td>
+      <td>${r.caf} ☕</div></td>
+      <td style="color:var(--muted);font-size:.75rem;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.notas}</div></td>
       <td><div class="row-actions">
         <button class="btn-edit-row" onclick="openEditSueno(${realIdx})">✏️ Editar</button>
         <button class="btn-del-row" onclick="quickDeleteSueno(${realIdx})">✕</button>
-      </div></td>
+      </div></div></td>
     </tr>`;
   }).join('');
   return`<div class="cards-row"><div class="card"><div class="card-label">Promedio horas</div><div class="card-val" style="color:var(--purple)">${avgH}</div><div class="card-unit">horas/noche</div></div><div class="card"><div class="card-label">Calidad promedio</div><div class="card-val" style="color:var(--yellow)">${avgCal}</div><div class="card-unit">/ 5</div></div><div class="card"><div class="card-label">Estrés promedio</div><div class="card-val" style="color:var(--orange)">${avgEst}</div><div class="card-unit">/ 10</div></div><div class="card"><div class="card-label">Total registros</div><div class="card-val" style="color:var(--teal)">${p.sueno.length}</div></div></div>
@@ -998,7 +1042,7 @@ function renderTabCorr(p){
 }
 
 // ════════════════════════════════
-//  CHARTS PACIENTE
+//  CHARTS PACIENTE (sin cambios)
 // ════════════════════════════════
 function drawPatientCharts(p){
   const labels7=p.pa.slice(-7).map(r=>r.fecha.slice(5));
@@ -1035,7 +1079,7 @@ function drawPatientCharts(p){
 }
 
 // ════════════════════════════════
-//  MODALES
+//  MODALES Y CRUD (sin cambios en la lógica base)
 // ════════════════════════════════
 function openAddModal(){document.getElementById('modal-add').style.display='flex';}
 function openModalPA(){document.getElementById('pa-fecha').value=today();document.getElementById('pa-hora').value=nowTime();document.getElementById('modal-pa').style.display='flex';}
@@ -1043,9 +1087,6 @@ function openModalSueno(){document.getElementById('su-fecha').value=today();docu
 function closeModal(id){document.getElementById(id).style.display='none';}
 function closeModalIfBg(e,id){if(e.target===document.getElementById(id))closeModal(id);}
 
-// ════════════════════════════════
-//  CRUD
-// ════════════════════════════════
 function addPatient(){
   const nombre=document.getElementById('np-nombre').value.trim();
   if(!nombre){alert('El nombre es obligatorio.');return;}
@@ -1077,7 +1118,6 @@ function saveSueno(){
 
 function updateField(id,field,val){const p=db.patients.find(p=>p.id===id);if(p){p[field]=val;saveData();renderSidebar();}}
 
-// ── Editar PA ──
 function openEditPA(realIdx){
   const p=getPatient();if(!p)return;
   editingPAIdx=realIdx;
@@ -1120,7 +1160,6 @@ function deletePA(){
   renderSidebar();renderPatient();
 }
 
-// ── Editar Sueño ──
 function openEditSueno(realIdx){
   const p=getPatient();if(!p)return;
   editingSuenoIdx=realIdx;
@@ -1199,4 +1238,5 @@ renderSidebar();
 renderOverview();
 </script>
 </body>
+  
 </html>
