@@ -238,9 +238,18 @@ tr:hover .row-actions{opacity:1;}
   <div class="sidebar-section-label">Pacientes (<span id="count-label">0</span>)</div>
   <div class="patient-list" id="patient-list"></div>
 
-  <div style="padding:.5rem .75rem .75rem">
-    <button class="btn-add-patient" onclick="openAddModal()">＋ Agregar paciente</button>
+  <div style="padding:.5rem .75rem .75rem; display: flex; flex-direction: column; gap: .5rem;">
+  <button class="btn-add-patient" onclick="openAddModal()" style="margin:0">＋ Agregar paciente</button>
+  
+  <div style="display: flex; gap: .5rem;">
+    <button class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem" onclick="exportAllData()">📤 Exportar datos</button>
+    <label class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem; cursor:pointer; text-align:center; display:inline-block">📥 Importar datos
+      <input type="file" accept=".json" style="display:none" onchange="importAllData(event)">
+    </label>
   </div>
+  
+  <button class="btn-danger-sm" style="width:100%; margin-top:.25rem" onclick="resetToSeedData()">🔄 Restaurar datos de ejemplo</button>
+</div>
 </aside>
 
 <div class="main">
@@ -1444,6 +1453,79 @@ function exportCSV(id){
   csv+='\nFecha,Dormir,Despertar,Horas,Calidad,Estres,Cafeina,Alcohol,Notas\n';
   p.sueno.forEach(r=>csv+=`${r.fecha},${r.dormir},${r.despertar},${calcH(r.dormir,r.despertar)},${r.cal},${r.estres},${r.caf},${r.alc},"${r.notas}"\n`);
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`${p.exp}_${p.nombre.replace(/ /g,'_')}.csv`;a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPARTIR DATOS ENTRE EQUIPO (EXPORTAR / IMPORTAR)
+// ═══════════════════════════════════════════════════════════════
+function exportAllData() {
+  const dataStr = JSON.stringify(db);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  const exportFileDefaultName = `pacientes_equipo2_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+}
+
+function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (imported.patients && imported.nextId !== undefined) {
+        db = imported;
+        saveData();
+        // Recargar toda la interfaz
+        renderSidebar();
+        if (activePatientId === null) {
+          renderOverview();
+        } else {
+          renderPatient();
+        }
+        alert('✅ Datos importados correctamente. Se han cargado ' + db.patients.length + ' pacientes.');
+      } else {
+        alert('❌ Archivo inválido. No contiene la estructura correcta de pacientes.');
+      }
+    } catch(err) {
+      alert('❌ Error al leer el archivo: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Función para resetear a los datos de ejemplo (si alguien quiere empezar de cero)
+function resetToSeedData() {
+  if(!confirm('⚠️ Esto ELIMINARÁ todos los pacientes y registros actuales. ¿Deseas continuar?')) return;
+  
+  const seedPats = [
+    {id:1,nombre:'Ana García López',edad:52,sexo:'F',exp:'EXP-001',dx:'Hipertensión esencial',med:'Losartán 50mg',tel:'998-100-0001',color:'#c084fc',pa:[],sueno:[]},
+    {id:2,nombre:'Roberto Mendez',edad:67,sexo:'M',exp:'EXP-002',dx:'Hipertensión grado 2, DM2',med:'Amlodipino 5mg, Metformina',tel:'998-100-0002',color:'#74c0fc',pa:[],sueno:[]},
+    {id:3,nombre:'María Torres',edad:38,sexo:'F',exp:'EXP-003',dx:'Sin diagnóstico previo',med:'Ninguna',tel:'998-100-0003',color:'#34d399',pa:[],sueno:[]},
+    {id:4,nombre:'Carlos Ruiz Díaz',edad:45,sexo:'M',exp:'EXP-004',dx:'Estrés laboral crónico',med:'Ninguna',tel:'998-100-0004',color:'#ffa94d',pa:[],sueno:[]},
+  ];
+  
+  const daysAgo=(n)=>{const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);};
+  seedPats.forEach(p=>{
+    const baseSis=[p.id===2?148:p.id===1?135:p.id===4?128:115];
+    for(let i=6;i>=0;i--){
+      const s=baseSis[0]+Math.round((Math.random()-.3)*12);
+      const d=Math.round(s*.62+Math.random()*8);
+      p.pa.push({fecha:daysAgo(i),hora:'07:'+String(10+Math.floor(Math.random()*40)).padStart(2,'0'),sis:s,dia:d,pulso:65+Math.round(Math.random()*20),contexto:'reposo',brazo:'izquierdo',notas:''});
+      const dormin=22+Math.round(Math.random()*2);
+      const dormH=`${dormin%24}:${Math.random()>.5?'30':'00'}`;
+      const wakeH=`0${5+Math.round(Math.random()*2)}:${Math.random()>.5?'30':'00'}`;
+      p.sueno.push({fecha:daysAgo(i),dormir:dormH,despertar:wakeH,cal:String(2+Math.round(Math.random()*3)),estres:2+Math.round(Math.random()*7),act:2+Math.round(Math.random()*7),caf:Math.round(Math.random()*4),alc:0,int:Math.round(Math.random()*3),notas:''});
+    }
+  });
+  db = {patients:seedPats,nextId:5};
+  saveData();
+  activePatientId = null;
+  renderSidebar();
+  renderOverview();
+  alert('✅ Datos reiniciados a los valores de ejemplo (4 pacientes con registros simulados)');
 }
 
 // ════════════════════════════════
