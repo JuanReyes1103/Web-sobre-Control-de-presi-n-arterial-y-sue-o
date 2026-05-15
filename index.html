@@ -209,6 +209,33 @@ tr:hover .row-actions{opacity:1;}
 .prio-g1{background:#ffa94d;color:#1a1a1a;}
 .prio-elevada{background:#fde68a;color:#1a1a1a;}
 .prio-normal{background:#69db7c;color:#1a1a1a;}
+
+.chart-summary {
+  font-size: 0.72rem;
+  color: var(--muted2);
+  margin-top: 1.2rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--b1);
+  line-height: 1.5;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.chart-wrap {
+  flex-shrink: 0;
+}
+
+.chart-summary {
+  flex-shrink: 0;
+  margin-top: 0.75rem;
+}
 </style>
 </head>
 <body>
@@ -226,6 +253,20 @@ tr:hover .row-actions{opacity:1;}
     </div>
   </div>
 
+  <!-- BOTONES MOVIDOS ARRIBA (justo después de la búsqueda) -->
+  <div style="padding: 0.75rem 1rem 0.5rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-bottom: 1px solid var(--b1);">
+    <button class="btn-add-patient" onclick="openAddModal()" style="margin:0; width:100%">＋ Agregar paciente</button>
+    
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem" onclick="exportAllData()">📤 Exportar datos</button>
+      <label class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem; cursor:pointer; text-align:center;">📥 Importar datos
+        <input type="file" accept=".json" style="display:none" onchange="importAllData(event)">
+      </label>
+    </div>
+    
+    <button class="btn-danger-sm" style="width:100%;" onclick="resetToSeedData()">🔄 Restaurar datos de ejemplo</button>
+  </div>
+
   <div class="sidebar-section-label">Vistas</div>
   <div class="nav-overview active" id="nav-overview-btn" onclick="goOverview()">
     <div class="nav-icon">📊</div>
@@ -237,19 +278,6 @@ tr:hover .row-actions{opacity:1;}
 
   <div class="sidebar-section-label">Pacientes (<span id="count-label">0</span>)</div>
   <div class="patient-list" id="patient-list"></div>
-
-  <div style="padding:.5rem .75rem .75rem; display: flex; flex-direction: column; gap: .5rem;">
-  <button class="btn-add-patient" onclick="openAddModal()" style="margin:0">＋ Agregar paciente</button>
-  
-  <div style="display: flex; gap: .5rem;">
-    <button class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem" onclick="exportAllData()">📤 Exportar datos</button>
-    <label class="btn-sec" style="flex:1; font-size:.7rem; padding:.4rem .5rem; cursor:pointer; text-align:center; display:inline-block">📥 Importar datos
-      <input type="file" accept=".json" style="display:none" onchange="importAllData(event)">
-    </label>
-  </div>
-  
-  <button class="btn-danger-sm" style="width:100%; margin-top:.25rem" onclick="resetToSeedData()">🔄 Restaurar datos de ejemplo</button>
-</div>
 </aside>
 
 <div class="main">
@@ -527,6 +555,15 @@ function genRecsPatient(p){
     recs.push({icon:'📈',title:'HTA Grado 1 - Seguimiento',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Iniciar cambios: reducción de sodio, ejercicio regular, control de estrés.`,tag:'warn',tagLabel:'Seguimiento',dot:'orange', action:null});
   } else if(priority && priority.level === 3){
     recs.push({icon:'📊',title:'Presión elevada - Prevención',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg. Reforzar hábitos saludables y monitoreo.`,tag:'info',tagLabel:'Prevención',dot:'blue', action:null});
+  } else if(priority && priority.level === 4){
+    // PACIENTE NORMAL - RECOMENDACIONES PREVENTIVAS
+    recs.push({icon:'✅',title:'¡Presión arterial normal!',desc:`PA ${avgPA ? `promedio ${avgPA.sis}/${avgPA.dia}` : `${lastPA.sis}/${lastPA.dia}`} mmHg dentro del rango óptimo. Sigue así con estos hábitos preventivos:`,tag:'ok',tagLabel:'Óptimo',dot:'green', action:null});
+    
+    recs.push({icon:'🥗',title:'Alimentación cardiosaludable',desc:'Mantén una dieta rica en frutas, verduras, granos enteros y pescado. Limita el sodio a <5g de sal/día. La dieta DASH reduce hasta 11 mmHg la PA sistólica.',tag:'info',tagLabel:'Prevención',dot:'green', action:'dieta'});
+    
+    recs.push({icon:'🚶',title:'Mantén actividad física regular',desc:'150 minutos/semana de ejercicio moderado (caminata rápida, natación, ciclismo). El ejercicio regular mantiene la PA baja y el corazón sano.',tag:'info',tagLabel:'Prevención',dot:'green', action:'caminata'});
+    
+    recs.push({icon:'🩺',title:'Chequeo anual',desc:'Programa revisión médica anual para monitorear PA, perfil lipídico y glucosa. La detección temprana salva vidas.',tag:'info',tagLabel:'Recordatorio',dot:'blue', action:null});
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -636,6 +673,9 @@ function genRecsPatient(p){
         dot:'purple',
         action:'higiene_sueño'
       });
+    } else if(h >= 7 && priority && priority.level === 4){
+      // Solo mostrar si ya está bien y tiene sueño óptimo
+      recs.push({icon:'🏆',title:'¡Excelente hábito de sueño!',desc:`Duermes ${h}h por noche, lo cual es óptimo. El sueño reparador es fundamental para mantener una presión arterial saludable.`,tag:'ok',tagLabel:'Logro',dot:'green', action:null});
     }
   }
 
@@ -764,6 +804,13 @@ function genRecsPatient(p){
       ☐ ¿Consume regaliz o suplementos sin consultar?
       
       Si adherencia es buena y PA sigue alta → considerar ajuste de dosis o añadir segundo fármaco.`,tag:'urgent',tagLabel:'Revisar medicación',dot:'red', action:null});
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // 13. SI NO HAY NINGUNA RECOMENDACIÓN, MOSTRAR MENSAJE PREVENTIVO
+  // ──────────────────────────────────────────────────────────────
+  if(recs.length === 0){
+    recs.push({icon:'❤️',title:'¡Excelente estado de salud!',desc:'Todos los parámetros están dentro del rango óptimo. Mantén estos hábitos saludables: alimentación balanceada, ejercicio regular, sueño reparador y chequeos médicos anuales.',tag:'ok',tagLabel:'Salud óptima',dot:'green', action:null});
   }
 
   return recs;
@@ -1017,7 +1064,7 @@ function renderOverview(){
       <div class="table-wrap">
         <table>
           <thead><tr><th>Paciente</th><th>Edad/Sexo</th><th>PA / Prioridad</th><th>Pulso</th><th>Sueño</th><th>Calidad</th><th>Última fecha</th></tr></thead>
-          <tbody>${rows || '<tr><td colspan="7" class="no-data">Agrega pacientes</td></tr>'}</tbody>
+          <tbody>${rows || '<tr><td colspan="7" class="no-data">Agrega pacientes</td>'}</tbody>
         </table>
       </div>
     </div>
@@ -1081,6 +1128,27 @@ function renderOverview(){
       type: 'line', data: { labels: names, datasets: [{ label: 'Sistólica (mmHg)', data: sistolicas, borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,.1)', fill: true, tension: 0.3 }, { label: 'Diastólica (mmHg)', data: diastolicas, borderColor: '#74c0fc', backgroundColor: 'rgba(116,192,252,.1)', fill: true, tension: 0.3 }] },
       options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: i => `${i.dataset.label}: ${i.raw} mmHg` } } }, scales: { y: { ticks: { color: '#7d8590' }, grid: { color: 'rgba(255,255,255,.04)' } }, x: { ticks: { color: '#7d8590', font: { size: 9 } } } } }
     });
+
+    // ==================== RESÚMENES EXPLICATIVOS PARA CADA GRÁFICA ====================
+    const summaries = {
+      'ov-chart-priority': '📊 PRIORIDAD CLÍNICA: CRISIS (>180/120) atención inmediata; HTA G2 (≥140/90) revisión esta semana; HTA G1 (≥130/80) seguimiento cambios de vida; Elevada prevención; Normal control rutinario.',
+      'ov-chart-sueno': '😴 SUEÑO PROMEDIO: <6h se asocia a aumento de PA sistólica 5-15 mmHg y mayor riesgo cardiovascular. Meta terapéutica: ≥7 horas.',
+      'ov-chart-sis': '❤️ PRESIÓN SISTÓLICA: Rojo≥140 (fuera de meta), naranja≥130 (elevada), verde<120 (óptimo). Ayuda a titular tratamiento antihipertensivo.',
+      'ov-chart-dia': '💙 PRESIÓN DIASTÓLICA: Rojo≥90 (HTA), naranja≥80 (elevada), verde<80 (normal). Diastólica elevada predice daño microvascular y riesgo de ACV.',
+      'ov-chart-pulso': '💓 FRECUENCIA CARDÍACA: >100 lpm taquicardia en reposo (ansiedad, deshidratación, efecto adverso). 60-90 lpm normal.',
+      'ov-chart-edad': '🎂 DISTRIBUCIÓN ETARIA: La prevalencia de HTA aumenta con la edad (>60 años hasta 70%). Focaliza screening en grupos de mayor riesgo.',
+      'ov-chart-sexo': '⚥ PROPORCIÓN POR SEXO: Detecta sesgos de género en la muestra y adapta estrategias de captación y prevención.',
+      'ov-chart-compare': '📈 COMPARATIVA SISTÓLICA vs DIASTÓLICA: En mayores predomina la sistólica; en jóvenes la diastólica. Disociación sugiere rigidez arterial.'
+    };
+    for (const [canvasId, text] of Object.entries(summaries)) {
+      const canvas = document.getElementById(canvasId);
+      if (canvas && !canvas.parentNode.querySelector('.chart-summary')) {
+        const div = document.createElement('div');
+        div.className = 'chart-summary';
+        div.innerText = text;
+        canvas.parentNode.appendChild(div);
+      }
+    }
   }, 100);
 }
 function barOpts(unit){
@@ -1266,7 +1334,7 @@ function renderTabCorr(p){
 }
 
 // ════════════════════════════════
-//  CHARTS PACIENTE (sin cambios)
+//  CHARTS PACIENTE CON RESÚMENES
 // ════════════════════════════════
 function drawPatientCharts(p){
   const labels7=p.pa.slice(-7).map(r=>r.fecha.slice(5));
@@ -1299,6 +1367,63 @@ function drawPatientCharts(p){
     if(c6)chartInstances['corr2']=new Chart(c6,{type:'scatter',data:{datasets:[{data:corrData2,backgroundColor:'#ff6b6b',pointRadius:6}]},options:scatterOpts('Estrés (1–10)','Sistólica mmHg')});
     const c7=document.getElementById('ch-dual')?.getContext('2d');
     if(c7){const dualLabels=p.pa.slice(-n).map(r=>r.fecha.slice(5));const dualH=p.sueno.slice(-n).map(r=>calcH(r.dormir,r.despertar));const dualSis=p.pa.slice(-n).map(r=>r.sis);chartInstances['dual']=new Chart(c7,{type:'line',data:{labels:dualLabels,datasets:[{label:'Sueño (h)',data:dualH,borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:4,yAxisID:'yS'},{label:'Sistólica',data:dualSis,borderColor:'#ff6b6b',fill:false,tension:.4,pointRadius:4,yAxisID:'yPA'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#7d8590',font:{size:10}}}},scales:{x:{ticks:{color:'#7d8590',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},yS:{position:'left',title:{display:true,text:'Horas sueño',color:'#c084fc',font:{size:9}},ticks:{color:'#c084fc'},grid:{display:false}},yPA:{position:'right',title:{display:true,text:'Sistólica mmHg',color:'#ff6b6b',font:{size:9}},ticks:{color:'#ff6b6b'},grid:{color:'rgba(255,255,255,.03)'}}}}});}
+  }
+
+  // ==================== RESÚMENES EXPLICATIVOS PARA GRÁFICAS DEL PACIENTE ====================
+  const paCanvas = document.getElementById('ch-pa');
+  if(paCanvas && !paCanvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '📈 TENDENCIA DE PRESIÓN ARTERIAL: Muestra la evolución de la presión sistólica (rojo) y diastólica (azul) en los últimos 7 días. Ideal para evaluar respuesta al tratamiento y detectar picos anormales.';
+    paCanvas.parentNode.appendChild(div);
+  }
+  
+  const suCanvas = document.getElementById('ch-su');
+  if(suCanvas && !suCanvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '😴 HORAS DE SUEÑO POR NOCHE: Barras rojas indican <6h (asociado a mayor PA), verdes ≥7h (óptimo). El sueño insuficiente eleva la presión sistólica 5-15 mmHg.';
+    suCanvas.parentNode.appendChild(div);
+  }
+  
+  const paFullCanvas = document.getElementById('ch-pa-full');
+  if(paFullCanvas && !paFullCanvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '📊 HISTORIAL COMPLETO DE PA: Tendencia de todas las mediciones registradas. Ayuda a identificar patrones estacionales o cambios relacionados con medicación.';
+    paFullCanvas.parentNode.appendChild(div);
+  }
+  
+  const suFullCanvas = document.getElementById('ch-su-full');
+  if(suFullCanvas && !suFullCanvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '🌙 HISTORIAL DE SUEÑO: Evolución de las horas de sueño por noche. Las barras de color rojo indican déficit crónico de sueño, asociado a peor control de la PA.';
+    suFullCanvas.parentNode.appendChild(div);
+  }
+  
+  const corr1Canvas = document.getElementById('ch-corr1');
+  if(corr1Canvas && !corr1Canvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '🔗 CORRELACIÓN SUEÑO vs PA SISTÓLICA: Cada punto representa un día. Si la nube de puntos desciende de izquierda a derecha, confirma que dormir más horas reduce la presión arterial.';
+    corr1Canvas.parentNode.appendChild(div);
+  }
+  
+  const corr2Canvas = document.getElementById('ch-corr2');
+  if(corr2Canvas && !corr2Canvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '😰 CORRELACIÓN ESTRÉS vs PA SISTÓLICA: Puntos hacia arriba a la derecha indican que mayor estrés se asocia con presión más alta. Útil para justificar intervenciones de manejo de estrés.';
+    corr2Canvas.parentNode.appendChild(div);
+  }
+  
+  const dualCanvas = document.getElementById('ch-dual');
+  if(dualCanvas && !dualCanvas.parentNode.querySelector('.chart-summary')) {
+    const div = document.createElement('div');
+    div.className = 'chart-summary';
+    div.innerText = '📉 TENDENCIA COMBINADA: Superposición de horas de sueño (morado) y presión sistólica (rojo) a lo largo del tiempo. Cuando el sueño baja, la PA tiende a subir.';
+    dualCanvas.parentNode.appendChild(div);
   }
 }
 
